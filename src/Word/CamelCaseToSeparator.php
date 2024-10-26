@@ -9,7 +9,6 @@ use Laminas\Filter\ScalarOrArrayFilterCallback;
 
 use function implode;
 use function preg_split;
-use function str_replace;
 
 use const PREG_SPLIT_DELIM_CAPTURE;
 use const PREG_SPLIT_NO_EMPTY;
@@ -54,12 +53,7 @@ final class CamelCaseToSeparator implements FilterInterface
             $value,
             fn (string $input): string => implode(
                 $this->separator,
-                preg_split(
-                    $pattern,
-                    str_replace($this->separator, '', $input),
-                    -1,
-                    PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY,
-                ),
+                preg_split($pattern, $input, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY),
             )
         );
     }

@@ -30,11 +30,11 @@ class CamelCaseToSeparatorTest extends TestCase
             ['SomePDFInText', 'Some-PDF-In-Text'],
             ['123LeadingNumbers', '123-Leading-Numbers'],
             ['ItIs2016', 'It-Is-2016'],
-            ['What-If', 'What-If'],
+            ['What-If', 'What---If'],
             ['ASingleLetterB', 'A-Single-Letter-B'],
             ['some_snake_case', 'some_snake_case'],
             ['Title_Snake_Case', 'Title-_-Snake-_-Case'],
-            ['lower-with-dash', 'lowerwithdash'],
+            ['lower-with-dash', 'lower-with-dash'],
             ['FFS!', 'FFS-!'],
             ['WithA😃', 'With-A-😃'],
             ['PDF123', 'PDF-123'],
@@ -67,7 +67,7 @@ class CamelCaseToSeparatorTest extends TestCase
         $filtered = $filter($string);
 
         self::assertNotEquals($string, $filtered);
-        self::assertSame('These_Are_SOME_Camel_CASED_Words', $filtered);
+        self::assertSame('These_Are___SOME___Camel_CASED_Words', $filtered);
     }
 
     public function testFilterSupportArray(): void

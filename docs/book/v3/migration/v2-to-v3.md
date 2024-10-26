@@ -58,6 +58,8 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
+The filter will now treat numbers as a word boundary. For example `ThisHas4Words` will filter to `This-Has-4-Words`
+
 #### `CamelCaseToSeparator`
 
 The following methods have been removed:
@@ -68,6 +70,8 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
+The filter will now treat numbers as a word boundary. For example `ThisHas4Words` with the default separator will filter to `This Has 4 Words`
+
 #### `CamelCaseToUnderscore`
 
 The following methods have been removed:
@@ -77,6 +81,8 @@ The following methods have been removed:
 - `isOptions`
 - `setSeparator`
 - `getSeparator`
+
+The filter will now treat numbers as a word boundary. For example `ThisHas4Words` will filter to `This_Has_4_Words`
 
 #### `DashToSeparator`
 
