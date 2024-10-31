@@ -549,7 +549,6 @@
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
     <DeprecatedInterface>
-      <code><![CDATA[Encrypt]]></code>
       <code><![CDATA[Encrypt\EncryptionAlgorithmInterface]]></code>
     </DeprecatedInterface>
     <DocblockTypeContradiction>
@@ -785,9 +784,6 @@
       <code><![CDATA[Filter\Decrypt]]></code>
       <code><![CDATA[parent::filter($content)]]></code>
     </DeprecatedClass>
-    <DeprecatedInterface>
-      <code><![CDATA[Decrypt]]></code>
-    </DeprecatedInterface>
     <DocblockTypeContradiction>
       <code><![CDATA[! is_scalar($value) && ! is_array($value)]]></code>
     </DocblockTypeContradiction>
@@ -846,9 +842,6 @@
       <code><![CDATA[Filter\Encrypt]]></code>
       <code><![CDATA[parent::filter($content)]]></code>
     </DeprecatedClass>
-    <DeprecatedInterface>
-      <code><![CDATA[Encrypt]]></code>
-    </DeprecatedInterface>
     <DocblockTypeContradiction>
       <code><![CDATA[! is_scalar($value) && ! is_array($value)]]></code>
     </DocblockTypeContradiction>
