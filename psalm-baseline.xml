@@ -581,6 +581,10 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedMethod>
+      <code><![CDATA[setSeparator]]></code>
+      <code><![CDATA[setSeparator]]></code>
+    </DeprecatedMethod>
     <PossiblyInvalidArgument>
       <code><![CDATA[$separator]]></code>
     </PossiblyInvalidArgument>
@@ -952,6 +956,12 @@
       <code><![CDATA[duplicateTypeProvider]]></code>
       <code><![CDATA[invalidTypeProvider]]></code>
       <code><![CDATA[typeTestProvider]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="test/ToStringTest.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[returnBasicDataProvider]]></code>
+      <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="test/UpperCaseWordsTest.php">
