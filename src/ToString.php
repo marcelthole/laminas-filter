@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
+use Stringable;
 use function is_scalar;
 
-class ToString extends AbstractFilter
+final class ToString implements FilterInterface
 {
     /**
      * Returns (string) $value
@@ -14,14 +15,20 @@ class ToString extends AbstractFilter
      * If the value provided is non-scalar, the value will remain unfiltered
      *
      * @param mixed $value
-     * @psalm-return ($value is scalar ? string : mixed)
+     * @return ($value is scalar ? string : mixed)
      */
-    public function filter($value): mixed
+    public function filter(mixed $value): mixed
     {
-        if (! is_scalar($value)) {
+        if (! is_scalar($value)
+            && ! ($value instanceof Stringable)) {
             return $value;
         }
 
         return (string) $value;
+    }
+
+    public function __invoke(mixed $value): mixed
+    {
+        return $this->filter($value);
     }
 }
