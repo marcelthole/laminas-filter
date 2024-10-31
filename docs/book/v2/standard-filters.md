@@ -1440,6 +1440,27 @@ instead.
 Users pulling their `Null` filter instance from the filter plugin manager receive a `ToNull`
 instance instead starting in 2.4.0.
 
+## ToString
+
+The `ToString` filter casts `Stringable` objects or scalar values to `string`.
+This filter has no runtime options.
+
+### Basic Usage
+
+```php
+$filter = new \Laminas\Filter\ToString();
+
+$filter->filter(123); // "123"
+```
+
+Non-scalar input will be returned un-filtered:
+
+```php
+$filter = new \Laminas\Filter\ToString();
+
+$filter->filter(['muppet' => 'Kermit']); // ['muppet' => 'Kermit']
+```
+
 ## NumberFormat
 
 The `NumberFormat` filter can be used to return locale-specific number and percentage strings. It
