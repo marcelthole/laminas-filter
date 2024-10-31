@@ -10,7 +10,8 @@ class StringClass implements Stringable
 {
     public function __construct(
         private readonly string $string,
-    ) {}
+    ) {
+    }
 
     public function __toString(): string
     {

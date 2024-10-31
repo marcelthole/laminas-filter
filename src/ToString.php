@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Laminas\Filter;
 
 use Stringable;
+
 use function is_scalar;
 
 final class ToString implements FilterInterface
@@ -14,13 +15,14 @@ final class ToString implements FilterInterface
      *
      * If the value provided is non-scalar, the value will remain unfiltered
      *
-     * @param mixed $value
      * @return ($value is scalar ? string : mixed)
      */
     public function filter(mixed $value): mixed
     {
-        if (! is_scalar($value)
-            && ! ($value instanceof Stringable)) {
+        if (
+            ! is_scalar($value)
+            && ! $value instanceof Stringable
+        ) {
             return $value;
         }
 

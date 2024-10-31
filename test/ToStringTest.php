@@ -20,7 +20,7 @@ class ToStringTest extends TestCase
             ['string', 'string'],
             [false, ''],
             [-1.1, '-1.1'],
-            [new StringClass('test'), 'test']
+            [new StringClass('test'), 'test'],
         ];
     }
 
@@ -37,7 +37,7 @@ class ToStringTest extends TestCase
     {
         $filter = new ToString();
 
-        self::assertSame($output, $filter($input));
+        self::assertSame($output, $filter->__invoke($input));
     }
 
     /** @return list<array{0: mixed}> */

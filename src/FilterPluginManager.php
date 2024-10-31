@@ -36,8 +36,6 @@ class FilterPluginManager extends AbstractPluginManager
         'Int'    => ToInt::class,
         'null'   => ToNull::class,
         'Null'   => ToNull::class,
-        'string' => ToString::class,
-        'String' => ToString::class,
 
         // I18n filters
         'alnum'        => Alnum::class,
@@ -160,9 +158,6 @@ class FilterPluginManager extends AbstractPluginManager
         'tonull'                     => ToNull::class,
         'toNull'                     => ToNull::class,
         'ToNull'                     => ToNull::class,
-        'tostring'                   => ToString::class,
-        'toString'                   => ToString::class,
-        'ToString'                   => ToString::class,
         'uppercasewords'             => UpperCaseWords::class,
         'upperCaseWords'             => UpperCaseWords::class,
         'UpperCaseWords'             => UpperCaseWords::class,
