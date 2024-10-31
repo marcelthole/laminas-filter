@@ -62,6 +62,7 @@ final class FilterPluginManager extends AbstractPluginManager
             StripTags::class                   => InvokableFactory::class,
             ToInt::class                       => InvokableFactory::class,
             ToNull::class                      => InvokableFactory::class,
+            ToString::class                    => InvokableFactory::class,
             Word\CamelCaseToDash::class        => InvokableFactory::class,
             Word\CamelCaseToSeparator::class   => InvokableFactory::class,
             Word\CamelCaseToUnderscore::class  => InvokableFactory::class,

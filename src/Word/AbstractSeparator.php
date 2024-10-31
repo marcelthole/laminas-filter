@@ -34,13 +34,20 @@ abstract class AbstractSeparator extends AbstractFilter
         $this->setSeparator($separator);
     }
 
-    /** @return $this */
+    /**
+     * @deprecated Since 2.39.0 All option setters and getters will be removed in version 3.0
+     *
+     * @return $this
+     */
     public function setSeparator(string $separator): self
     {
         $this->separator = $separator;
         return $this;
     }
 
+    /**
+     * @deprecated Since 2.39.0 All option setters and getters will be removed in version 3.0
+     */
     public function getSeparator(): string
     {
         return $this->separator;

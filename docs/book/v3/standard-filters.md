@@ -969,6 +969,27 @@ $filter = new Laminas\Filter\ToNull([
 
 It is best practice is to use the `TYPE_*` constants rather than the human-readable strings. Modern IDEs will autocomplete these for you and usage and refactoring is easier.
 
+## ToString
+
+The `ToString` filter casts `Stringable` objects or scalar values to `string`.
+This filter has no runtime options.
+
+### Basic Usage
+
+```php
+$filter = new \Laminas\Filter\ToString();
+
+$filter->filter(123); // "123"
+```
+
+Non-scalar input will be returned un-filtered:
+
+```php
+$filter = new \Laminas\Filter\ToString();
+
+$filter->filter(['muppet' => 'Kermit']); // ['muppet' => 'Kermit']
+```
+
 ## NumberFormat
 
 The `NumberFormat` filter can be used to return locale-specific number and percentage strings. It
