@@ -5,6 +5,10 @@ to filtering word strings.
 
 ## CamelCaseToDash
 
+TIP: **New Behaviour since Version 3**
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` will filter to `This-Has-4-Words`.
+
 This filter modifies a given string such that `CamelCaseWords` are converted to `Camel-Case-Words`.
 
 ### Supported Options
@@ -22,6 +26,10 @@ print $filter->filter('ThisIsMyContent');
 The above example returns `This-Is-My-Content`.
 
 ## CamelCaseToSeparator
+
+TIP: **New Behaviour since Version 3**
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` with the default separator will filter to `This Has 4 Words`
 
 This filter modifies a given string such that `CamelCaseWords` are converted to `Camel Case Words`.
 
@@ -53,6 +61,10 @@ print $filter->filter('ThisIsMyContent');
 The above example returns `This Is My Content`.
 
 ## CamelCaseToUnderscore
+
+TIP: **New Behaviour since Version 3**
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` will filter to `This_Has_4_Words`
 
 This filter modifies a given string such that `CamelCaseWords` are converted to
 `Camel_Case_Words`.
