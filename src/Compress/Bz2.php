@@ -4,183 +4,66 @@ declare(strict_types=1);
 
 namespace Laminas\Filter\Compress;
 
-use Laminas\Filter\Exception;
+use Laminas\Filter\Exception\ExtensionNotLoadedException;
+use Laminas\Filter\Exception\RuntimeException;
 
-use function bzclose;
+use function assert;
 use function bzcompress;
 use function bzdecompress;
-use function bzopen;
-use function bzread;
-use function bzwrite;
 use function extension_loaded;
-use function file_exists;
 use function is_int;
-use function str_contains;
+use function sprintf;
 
 /**
  * Compression adapter for Bz2
  *
  * @psalm-type Options = array{
- *     blocksize?: int,
- *     archive?: string|null,
+ *     blocksize?: int<1, 9>|null,
  * }
- * @extends AbstractCompressionAlgorithm<Options>
  */
-final class Bz2 extends AbstractCompressionAlgorithm
+final class Bz2 implements StringCompressionAdapterInterface
 {
     private const DEFAULT_BLOCK_SIZE = 4;
 
-    /**
-     * Compression Options
-     * array(
-     *     'blocksize' => Blocksize to use from 0-9
-     *     'archive'   => Archive to use
-     * )
-     *
-     * @var Options
-     */
-    protected $options = [
-        'blocksize' => self::DEFAULT_BLOCK_SIZE,
-        'archive'   => null,
-    ];
+    /** @var int<1, 9> */
+    private readonly int $blockSize;
 
     /**
-     * @param null|Options|iterable $options (Optional) Options to set
-     * @throws Exception\ExtensionNotLoadedException If bz2 extension not loaded.
+     * @param Options $options (Optional) Options to set
+     * @throws ExtensionNotLoadedException If bz2 extension not loaded.
      */
-    public function __construct($options = null)
+    public function __construct(array $options = [])
     {
         if (! extension_loaded('bz2')) {
-            throw new Exception\ExtensionNotLoadedException('This filter needs the bz2 extension');
-        }
-        parent::__construct($options);
-    }
-
-    /**
-     * Returns the set blocksize
-     *
-     * @return int
-     */
-    public function getBlocksize()
-    {
-        return $this->options['blocksize'] ?? self::DEFAULT_BLOCK_SIZE;
-    }
-
-    /**
-     * Sets a new blocksize
-     *
-     * @param  int $blocksize
-     * @throws Exception\InvalidArgumentException
-     * @return self
-     */
-    public function setBlocksize($blocksize)
-    {
-        if (($blocksize < 0) || ($blocksize > 9)) {
-            throw new Exception\InvalidArgumentException('Blocksize must be between 0 and 9');
+            throw new ExtensionNotLoadedException('This filter needs the bz2 extension');
         }
 
-        $this->options['blocksize'] = (int) $blocksize;
-        return $this;
+        $this->blockSize = $options['blocksize'] ?? self::DEFAULT_BLOCK_SIZE;
     }
 
-    /**
-     * Returns the set archive
-     *
-     * @return string|null
-     */
-    public function getArchive()
+    public function compress(string $value): string
     {
-        return $this->options['archive'];
-    }
-
-    /**
-     * Sets the archive to use for de-/compression
-     *
-     * @param  string $archive Archive to use
-     * @return self
-     */
-    public function setArchive($archive)
-    {
-        $this->options['archive'] = (string) $archive;
-        return $this;
-    }
-
-    /**
-     * Compresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException
-     */
-    public function compress($content)
-    {
-        $archive = $this->getArchive();
-        if ($archive !== null) {
-            $file = bzopen($archive, 'w');
-            if (! $file) {
-                throw new Exception\RuntimeException("Error opening the archive '" . $archive . "'");
-            }
-
-            bzwrite($file, $content);
-            bzclose($file);
-            $compressed = true;
-        } else {
-            $compressed = bzcompress($content, $this->getBlocksize());
-        }
+        $compressed = bzcompress($value, $this->blockSize);
 
         if (is_int($compressed)) {
-            throw new Exception\RuntimeException('Error during compression');
+            throw new RuntimeException(sprintf('Error during compression: Bz Error code %d', $compressed));
         }
+
+        assert($compressed !== '');
 
         return $compressed;
     }
 
-    /**
-     * Decompresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException
-     */
-    public function decompress($content)
+    public function decompress(string $value): string
     {
-        $archive = $this->getArchive();
+        $decompressed = bzdecompress($value);
 
-        //check if there are null byte characters before doing a file_exists check
-        if (null !== $content && ! str_contains($content, "\0") && file_exists($content)) {
-            $archive = $content;
+        if (is_int($decompressed)) {
+            throw new RuntimeException(sprintf('Error during decompression: Bz Error code %d', $decompressed));
         }
 
-        if (null !== $archive && file_exists($archive)) {
-            $file = bzopen($archive, 'r');
-            if (! $file) {
-                throw new Exception\RuntimeException("Error opening the archive '" . $content . "'");
-            }
+        assert($decompressed !== '');
 
-            $compressed = bzread($file);
-            bzclose($file);
-        } elseif (null !== $content) {
-            $compressed = bzdecompress($content);
-        } else {
-            // without strict types, bzdecompress(null) returns an empty string
-            // we need to simulate this behaviour to prevent a BC break!
-            $compressed = '';
-        }
-
-        if (is_int($compressed)) {
-            throw new Exception\RuntimeException('Error during decompression');
-        }
-
-        return $compressed;
-    }
-
-    /**
-     * Returns the adapter name
-     *
-     * @return string
-     */
-    public function toString()
-    {
-        return 'Bz2';
+        return $decompressed;
     }
 }

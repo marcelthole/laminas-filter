@@ -4,231 +4,79 @@ declare(strict_types=1);
 
 namespace Laminas\Filter\Compress;
 
-use Laminas\Filter\Exception;
+use Laminas\Filter\Exception\ExtensionNotLoadedException;
+use Laminas\Filter\Exception\RuntimeException;
 
-use function end;
+use function assert;
 use function extension_loaded;
-use function fclose;
-use function file_exists;
-use function fopen;
-use function fread;
-use function fseek;
-use function gzclose;
 use function gzcompress;
 use function gzdeflate;
 use function gzinflate;
-use function gzopen;
-use function gzread;
 use function gzuncompress;
-use function gzwrite;
-use function is_string;
-use function str_contains;
-use function unpack;
-
-use const SEEK_END;
 
 /**
  * Compression adapter for Gzip (ZLib)
  *
  * @psalm-type Options = array{
- *     level?: int,
- *     mode?: string,
- *     archive?: string|null,
+ *     level?: int<0, 9>|null,
+ *     mode?: 'deflate'|'compress',
  * }
- * @extends AbstractCompressionAlgorithm<Options>
  */
-final class Gz extends AbstractCompressionAlgorithm
+final class Gz implements StringCompressionAdapterInterface
 {
     /**
-     * Compression Options
-     * array(
-     *     'level'    => Compression level 0-9
-     *     'mode'     => Compression mode, can be 'compress', 'deflate'
-     *     'archive'  => Archive to use
-     * )
+     * Compression level
      *
-     * @var Options
+     * -1 indicates the PHP default (Probably 6), 0 = no compression and 9 = max compression
+     *
+     * @var int<-1, 9>
      */
-    protected $options = [
-        'level'   => 9,
-        'mode'    => 'compress',
-        'archive' => null,
-    ];
+    private readonly int $level;
+
+    /** @var 'deflate'|'compress' */
+    private readonly string $mode;
 
     /**
-     * @param null|Options|iterable $options (Optional) Options to set
-     * @throws Exception\ExtensionNotLoadedException If zlib extension not loaded.
+     * @param Options $options (Optional) Options to set
+     * @throws ExtensionNotLoadedException If zlib extension not loaded.
      */
-    public function __construct($options = null)
+    public function __construct(array $options = [])
     {
         if (! extension_loaded('zlib')) {
-            throw new Exception\ExtensionNotLoadedException('This filter needs the zlib extension');
-        }
-        parent::__construct($options);
-    }
-
-    /**
-     * Returns the set compression level
-     *
-     * @return int
-     */
-    public function getLevel()
-    {
-        return $this->options['level'];
-    }
-
-    /**
-     * Sets a new compression level
-     *
-     * @param int $level
-     * @throws Exception\InvalidArgumentException
-     * @return self
-     */
-    public function setLevel($level)
-    {
-        if (($level < 0) || ($level > 9)) {
-            throw new Exception\InvalidArgumentException('Level must be between 0 and 9');
+            throw new ExtensionNotLoadedException('This filter needs the zlib extension');
         }
 
-        $this->options['level'] = (int) $level;
-        return $this;
+        $this->level = $options['level'] ?? -1;
+        $this->mode  = $options['mode'] ?? 'compress';
     }
 
-    /**
-     * Returns the set compression mode
-     *
-     * @return string
-     */
-    public function getMode()
+    public function compress(string $value): string
     {
-        return $this->options['mode'];
-    }
-
-    /**
-     * Sets a new compression mode
-     *
-     * @param  string $mode Supported are 'compress', 'deflate' and 'file'
-     * @return self
-     * @throws Exception\InvalidArgumentException For invalid $mode value.
-     */
-    public function setMode($mode)
-    {
-        if ($mode !== 'compress' && $mode !== 'deflate') {
-            throw new Exception\InvalidArgumentException('Given compression mode not supported');
-        }
-
-        $this->options['mode'] = $mode;
-        return $this;
-    }
-
-    /**
-     * Returns the set archive
-     *
-     * @return string|null
-     */
-    public function getArchive()
-    {
-        return $this->options['archive'];
-    }
-
-    /**
-     * Sets the archive to use for de-/compression
-     *
-     * @param  string $archive Archive to use
-     * @return self
-     */
-    public function setArchive($archive)
-    {
-        $this->options['archive'] = (string) $archive;
-        return $this;
-    }
-
-    /**
-     * Compresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException If unable to open archive or error during decompression.
-     */
-    public function compress($content)
-    {
-        $archive = $this->getArchive();
-        if (is_string($archive) && $archive !== '') {
-            $file = gzopen($archive, 'w' . $this->getLevel());
-            if (! $file) {
-                throw new Exception\RuntimeException("Error opening the archive '" . $archive . "'");
-            }
-
-            gzwrite($file, $content);
-            gzclose($file);
-            $compressed = true;
-        } elseif ($this->options['mode'] === 'deflate') {
-            $compressed = gzdeflate($content, $this->getLevel());
-        } else {
-            $compressed = gzcompress($content, $this->getLevel());
-        }
+        $compressed = $this->mode === 'compress'
+            ? gzcompress($value, $this->level)
+            : gzdeflate($value, $this->level);
 
         if ($compressed === false) {
-            throw new Exception\RuntimeException('Error during compression');
+            throw new RuntimeException('Compression failed');
         }
+
+        assert($compressed !== '');
 
         return $compressed;
     }
 
-    /**
-     * Decompresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException If unable to open archive or error during decompression.
-     */
-    public function decompress($content)
+    public function decompress(string $value): string
     {
-        $archive = $this->getArchive();
-        $mode    = $this->getMode();
+        $decompressed = $this->mode === 'compress'
+            ? gzuncompress($value)
+            : gzinflate($value);
 
-        //check if there are null byte characters before doing a file_exists check
-        if (null !== $content && ! str_contains($content, "\0") && file_exists($content)) {
-            $archive = $content;
+        if ($decompressed === false) {
+            throw new RuntimeException('Error during decompression');
         }
 
-        if (null !== $archive && file_exists($archive)) {
-            $handler = fopen($archive, 'rb');
-            if (! $handler) {
-                throw new Exception\RuntimeException("Error opening the archive '" . $archive . "'");
-            }
+        assert($decompressed !== '');
 
-            fseek($handler, -4, SEEK_END);
-            $packet = fread($handler, 4);
-            $bytes  = unpack('V', $packet);
-            $size   = end($bytes);
-            fclose($handler);
-
-            $file       = gzopen($archive, 'r');
-            $compressed = gzread($file, $size);
-            gzclose($file);
-        } elseif ($mode === 'deflate' && null !== $content) {
-            $compressed = gzinflate($content);
-        } elseif (null !== $content) {
-            $compressed = gzuncompress($content);
-        } else {
-            $compressed = false;
-        }
-
-        if ($compressed === false) {
-            throw new Exception\RuntimeException('Error during decompression');
-        }
-
-        return $compressed;
-    }
-
-    /**
-     * Returns the adapter name
-     *
-     * @return string
-     */
-    public function toString()
-    {
-        return 'Gz';
+        return $decompressed;
     }
 }
