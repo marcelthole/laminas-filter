@@ -240,7 +240,7 @@ class Zip extends AbstractCompressionAlgorithm
     /**
      * Returns the proper string based on the given error constant
      *
-     * @param  int $error
+     * @param  int|false $error
      * @return string
      */
     public function errorString($error)
