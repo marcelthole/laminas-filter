@@ -290,7 +290,10 @@ class Inflector extends AbstractFilter
     {
         if (null !== $spec) {
             $spec = $this->_normalizeSpec($spec);
-            return $this->rules[$spec] ?? false;
+            if (isset($this->rules[$spec])) {
+                return $this->rules[$spec];
+            }
+            return false;
         }
 
         return $this->rules;
