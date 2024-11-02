@@ -22,7 +22,7 @@ final class ForceUriScheme implements FilterInterface
     private const DEFAULT_SCHEME = 'https';
 
     /** @var non-empty-string */
-    private string $scheme;
+    private readonly string $scheme;
 
     /** @param Options $options */
     public function __construct(array $options = ['scheme' => self::DEFAULT_SCHEME])

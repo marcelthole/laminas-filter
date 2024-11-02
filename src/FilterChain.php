@@ -178,7 +178,7 @@ class FilterChain extends AbstractFilter implements Countable, IteratorAggregate
                     get_debug_type($callback)
                 ));
             }
-            $callback = [$callback, 'filter'];
+            $callback = $callback->filter(...);
         }
         $this->filters->insert($callback, $priority);
         return $this;

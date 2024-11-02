@@ -29,7 +29,7 @@ class CallbackTest extends TestCase
     public function testStaticCallback(): void
     {
         $filter = new CallbackFilter(
-            [CallbackClass::class, 'staticCallback']
+            CallbackClass::staticCallback(...)
         );
         self::assertSame('staticCallback-test', $filter('test'));
     }
