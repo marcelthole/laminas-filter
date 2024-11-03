@@ -9,10 +9,9 @@ use Traversable;
 
 use function array_key_exists;
 use function array_map;
-use function gettype;
+use function get_debug_type;
 use function is_array;
 use function is_iterable;
-use function is_object;
 use function is_scalar;
 use function is_string;
 use function method_exists;
@@ -56,7 +55,7 @@ abstract class AbstractFilter implements FilterInterface
             throw new Exception\InvalidArgumentException(sprintf(
                 '"%s" expects an array or Traversable; received "%s"',
                 __METHOD__,
-                is_object($options) ? $options::class : gettype($options)
+                get_debug_type($options)
             ));
         }
 

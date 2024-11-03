@@ -10,7 +10,7 @@ use Laminas\Filter\StringToUpper;
 /** @psalm-suppress UnusedClass */
 final class PluginRetrieval
 {
-    public function __construct(private FilterPluginManager $pluginManager)
+    public function __construct(private readonly FilterPluginManager $pluginManager)
     {
     }
 

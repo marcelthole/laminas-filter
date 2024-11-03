@@ -25,9 +25,6 @@
     </TypeDoesNotContainType>
   </file>
   <file src="src/AbstractFilter.php">
-    <DocblockTypeContradiction>
-      <code><![CDATA[gettype($options)]]></code>
-    </DocblockTypeContradiction>
     <InvalidPropertyAssignmentValue>
       <code><![CDATA[[]]]></code>
     </InvalidPropertyAssignmentValue>
@@ -37,9 +34,6 @@
     <PossiblyInvalidPropertyAssignmentValue>
       <code><![CDATA[$this->options]]></code>
     </PossiblyInvalidPropertyAssignmentValue>
-    <RedundantConditionGivenDocblockType>
-      <code><![CDATA[is_object($options)]]></code>
-    </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/AbstractUnicode.php">
     <DeprecatedClass>
@@ -394,13 +388,6 @@
     </RedundantCastGivenDocblockType>
   </file>
   <file src="src/Compress/Zip.php">
-    <InvalidArgument>
-      <code><![CDATA[$res]]></code>
-      <code><![CDATA[$res]]></code>
-      <code><![CDATA[$res]]></code>
-      <code><![CDATA[$res]]></code>
-      <code><![CDATA[$res]]></code>
-    </InvalidArgument>
     <InvalidNullableReturnType>
       <code><![CDATA[string]]></code>
     </InvalidNullableReturnType>
@@ -2078,7 +2065,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[objectCallback]]></code>
       <code><![CDATA[objectCallbackWithParams]]></code>
-      <code><![CDATA[staticCallback]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="test/TestAsset/LowerCase.php">

@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 use function in_array;
-use function strpos;
+use function str_contains;
 
 class FilterPluginManagerCompatibilityTest extends TestCase
 {
@@ -73,12 +73,12 @@ class FilterPluginManagerCompatibilityTest extends TestCase
             self::assertIsString($alias);
             self::assertIsString($target);
             // Skipping as laminas-i18n is not required by this package
-            if (strpos($target, '\\I18n\\') !== false) {
+            if (str_contains($target, '\\I18n\\')) {
                 continue;
             }
 
             // Skipping as it has required options
-            if (strpos($target, 'DataUnitFormatter') !== false) {
+            if (str_contains($target, 'DataUnitFormatter')) {
                 continue;
             }
 
