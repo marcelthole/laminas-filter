@@ -323,3 +323,22 @@ print $filter->filter('this_is_my_content');
 ```
 
 The above example returns `this-is-my-content`.
+
+## UnderscoreToStudlyCase
+
+This filter modifies a given string such that `words_with_underscores` are
+converted to `wordsWithUnderscores`.
+
+### Supported Options
+
+There are no additional options for `Laminas\Filter\Word\UnderscoreToStudlyCase`:
+
+### Basic Usage
+
+```php
+$filter = new Laminas\Filter\Word\UnderscoreToStudlyCase();
+
+print $filter->filter('this_is_my_content');
+```
+
+The above example returns `thisIsMyContent`.
