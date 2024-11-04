@@ -110,7 +110,7 @@ class StringToLowerTest extends TestCase
                 self::assertSame($output, $filter($input));
             }
         } catch (Exception\ExtensionNotLoadedException $e) {
-            self::assertContains('mbstring is required', $e->getMessage());
+            self::assertStringContainsString('mbstring is required', $e->getMessage());
         }
     }
 
