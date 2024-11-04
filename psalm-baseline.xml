@@ -2010,9 +2010,6 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/StringToLowerTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$e->getMessage()]]></code>
-    </InvalidArgument>
     <PossiblyUnusedMethod>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
