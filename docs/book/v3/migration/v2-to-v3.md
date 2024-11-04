@@ -48,6 +48,51 @@ The impact of the removal of these aliases will not affect you if you use a FQCN
 
 ### Changes to Individual Filters
 
+#### `CamelCaseToDash`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `isOptions`
+- `setSeparator`
+- `getSeparator`
+
+The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToDash).
+
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` will filter to `This-Has-4-Words`
+
+#### `CamelCaseToSeparator`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `isOptions`
+- `setSeparator`
+- `getSeparator`
+
+The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToSeparator).
+
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` with the default separator will filter to `This Has 4 Words`
+
+#### `CamelCaseToUnderscore`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `isOptions`
+- `setSeparator`
+- `getSeparator`
+
+The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToUnderscore).
+
+The filter will now treat numbers as a word boundary.
+For example `ThisHas4Words` will filter to `This_Has_4_Words`
+
 #### `DashToSeparator`
 
 The following methods have been removed:
