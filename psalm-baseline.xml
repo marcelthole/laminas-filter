@@ -635,22 +635,6 @@
       <code><![CDATA[$requestedName]]></code>
     </UnusedParam>
   </file>
-  <file src="src/Word/UnderscoreToStudlyCase.php">
-    <MissingClosureParamType>
-      <code><![CDATA[$value]]></code>
-    </MissingClosureParamType>
-    <MissingClosureReturnType>
-      <code><![CDATA[static function ($value) {]]></code>
-    </MissingClosureReturnType>
-    <MixedArgument>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-    </MixedArgument>
-    <MixedReturnStatement>
-      <code><![CDATA[is_array($value) ? array_map($lowerCaseFirst, $value) : $lowerCaseFirst($value)]]></code>
-    </MixedReturnStatement>
-  </file>
   <file src="test/AllowListTest.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[defaultTestProvider]]></code>
@@ -1001,16 +985,6 @@
   </file>
   <file src="test/Word/UnderscoreToCamelCaseTest.php">
     <MixedAssignment>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="test/Word/UnderscoreToStudlyCaseTest.php">
-    <MixedAssignment>
-      <code><![CDATA[$filtered]]></code>
       <code><![CDATA[$filtered]]></code>
       <code><![CDATA[$filtered]]></code>
       <code><![CDATA[$filtered]]></code>
