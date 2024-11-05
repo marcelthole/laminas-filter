@@ -22,7 +22,7 @@ class UnderscoreToSeparatorTest extends TestCase
     public function testFilterSeparatesCamelCasedWordsProvidedSeparator(): void
     {
         $string   = 'underscore_separated_words';
-        $filter   = new UnderscoreToSeparatorFilter(':=:');
+        $filter   = new UnderscoreToSeparatorFilter(['separator' => ':=:']);
         $filtered = $filter($string);
 
         self::assertNotEquals($string, $filtered);

@@ -59,8 +59,7 @@ class FilterPluginManagerTest extends TestCase
         $filter = $this->filters->build('wordseparatortoseparator', $options);
 
         self::assertInstanceOf(SeparatorToSeparator::class, $filter);
-        self::assertSame($searchSeparator, $filter->getSearchSeparator());
-        self::assertSame($replacementSeparator, $filter->getReplacementSeparator());
+        self::assertSame('semicolon|seperated|words', $filter->filter('semicolon;seperated;words'));
     }
 
     #[Group('7169')]

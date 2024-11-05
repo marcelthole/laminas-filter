@@ -22,7 +22,7 @@ class SeparatorToDashTest extends TestCase
     public function testFilterSeparatesDashedWordsWithSomeString(): void
     {
         $string   = 'dash=separated=words';
-        $filter   = new SeparatorToDashFilter('=');
+        $filter   = new SeparatorToDashFilter(['separator' => '=']);
         $filtered = $filter($string);
 
         self::assertNotEquals($string, $filtered);

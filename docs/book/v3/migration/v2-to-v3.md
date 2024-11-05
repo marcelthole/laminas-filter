@@ -131,6 +131,21 @@ Additionally, `$options['pattern']` _must_ be provided at construction time or a
 
 Exceptions for invalid or empty patterns are now thrown during construct rather than when the filter is invoked.
 
+#### `SeparatorToDash`
+
+The constructor now only accepts an associative array of [documented options](../word.md#separatorToDash).
+
+#### `SeparatorToSeparator`
+
+The following methods have been removed:
+
+- `setSearchSeparator`
+- `getSearchSeparator`
+- `setReplacementSeparator`
+- `getReplacementSeparator`
+
+The constructor now only accepts an associative array of [documented options](../word.md#separatorToSeparator).
+
 #### `StringPrefix`
 
 The following methods have been removed:
@@ -176,6 +191,10 @@ The following methods have been removed:
 - `getType`
 
 The constructor now only accepts an associative array of [documented options](../standard-filters.md#tonull).
+
+#### `UnderscoreToSeparator`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#underscoreToSeparator).
 
 ## Removed Filters
 

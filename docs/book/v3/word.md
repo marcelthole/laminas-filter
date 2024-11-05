@@ -201,8 +201,7 @@ The following options are supported for `Laminas\Filter\Word\SeparatorToDash`:
 ### Basic Usage
 
 ```php
-$filter = new Laminas\Filter\Word\SeparatorToDash(':');
-// or new Laminas\Filter\Word\SeparatorToDash(array('separator' => ':'));
+$filter = new Laminas\Filter\Word\SeparatorToDash(['separator' => ':']);
 
 print $filter->filter('this:is:my:content');
 ```
@@ -236,7 +235,7 @@ The following options are supported for `Laminas\Filter\Word\SeparatorToSeparato
 ### Basic Usage
 
 ```php
-$filter = new Laminas\Filter\Word\SeparatorToSeparator(':', '+');
+$filter = new Laminas\Filter\Word\SeparatorToSeparator(['search_separator' => ':', 'replacement_separator' => '+']);
 
 print $filter->filter('this:is:my:content');
 ```
@@ -287,8 +286,7 @@ The following options are supported for `Laminas\Filter\Word\UnderscoreToSeparat
 ### Basic Usage
 
 ```php
-$filter = new Laminas\Filter\Word\UnderscoreToSeparator('+');
-// or new Laminas\Filter\Word\CamelCaseToSeparator(array('separator' => '+'));
+$filter = new Laminas\Filter\Word\UnderscoreToSeparator(['separator' => '+']));
 
 print $filter->filter('this_is_my_content');
 ```
