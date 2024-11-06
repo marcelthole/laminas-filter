@@ -71,7 +71,7 @@ final class FilterPluginManager extends AbstractPluginManager
             Word\DashToUnderscore::class       => InvokableFactory::class,
             Word\SeparatorToCamelCase::class   => InvokableFactory::class,
             Word\SeparatorToDash::class        => InvokableFactory::class,
-            Word\SeparatorToSeparator::class   => Word\Service\SeparatorToSeparatorFactory::class,
+            Word\SeparatorToSeparator::class   => InvokableFactory::class,
             Word\UnderscoreToCamelCase::class  => InvokableFactory::class,
             Word\UnderscoreToStudlyCase::class => InvokableFactory::class,
             Word\UnderscoreToDash::class       => InvokableFactory::class,

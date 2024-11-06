@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Laminas\Filter\Word;
 
-use Closure;
-use Laminas\Filter\AbstractFilter;
-use Laminas\Filter\Exception;
+use Laminas\Filter\FilterInterface;
+use Laminas\Filter\ScalarOrArrayFilterCallback;
 
 use function preg_quote;
 use function preg_replace;
@@ -15,101 +14,36 @@ use function preg_replace;
  * @psalm-type Options = array{
  *     search_separator?: string,
  *     replacement_separator?: string,
- *     ...
  * }
  * @template TOptions of Options
- * @template-extends AbstractFilter<TOptions>
+ * @implements FilterInterface<string|array<array-key, string|mixed>>
  */
-class SeparatorToSeparator extends AbstractFilter
+final class SeparatorToSeparator implements FilterInterface
 {
-    /** @var string */
-    protected $searchSeparator;
-    /** @var string */
-    protected $replacementSeparator;
+    private readonly string $searchSeparator;
+    private readonly string $replacementSeparator;
 
-    /**
-     * @param  string $searchSeparator      Separator to search for
-     * @param  string $replacementSeparator Separator to replace with
-     */
-    public function __construct($searchSeparator = ' ', $replacementSeparator = '-')
+    /** @param Options $options */
+    public function __construct(array $options = [])
     {
-        $this->setSearchSeparator($searchSeparator);
-        $this->setReplacementSeparator($replacementSeparator);
+        $this->searchSeparator      = $options['search_separator'] ?? ' ';
+        $this->replacementSeparator = $options['replacement_separator'] ?? '-';
     }
 
-    /**
-     * Sets a new separator to search for
-     *
-     * @param  string $separator Separator to search for
-     * @return self
-     */
-    public function setSearchSeparator($separator)
-    {
-        $this->searchSeparator = $separator;
-        return $this;
-    }
-
-    /**
-     * Returns the actual set separator to search for
-     *
-     * @return string
-     */
-    public function getSearchSeparator()
-    {
-        return $this->searchSeparator;
-    }
-
-    /**
-     * Sets a new separator which replaces the searched one
-     *
-     * @param  string $separator Separator which replaces the searched one
-     * @return self
-     */
-    public function setReplacementSeparator($separator)
-    {
-        $this->replacementSeparator = $separator;
-        return $this;
-    }
-
-    /**
-     * Returns the actual set separator which replaces the searched one
-     *
-     * @return string
-     */
-    public function getReplacementSeparator()
-    {
-        return $this->replacementSeparator;
-    }
-
-    /**
-     * Defined by Laminas\Filter\Filter
-     *
-     * Returns the string $value, replacing the searched separators with the defined ones
-     *
-     * @psalm-return ($value is string ? string : mixed)
-     */
     public function filter(mixed $value): mixed
     {
-        return self::applyFilterOnlyToStringableValuesAndStringableArrayValues(
+        return ScalarOrArrayFilterCallback::applyRecursively(
             $value,
-            Closure::fromCallable([$this, 'filterNormalizedValue'])
+            fn (string $input): string => preg_replace(
+                '#' . preg_quote($this->searchSeparator, '#') . '#',
+                $this->replacementSeparator,
+                $input
+            )
         );
     }
 
-    /**
-     * @param  string $value
-     * @return string
-     */
-    private function filterNormalizedValue($value)
+    public function __invoke(mixed $value): mixed
     {
-        if ($this->searchSeparator === null) {
-            throw new Exception\RuntimeException('You must provide a search separator for this filter to work.');
-        }
-
-        return preg_replace(
-            '#' . preg_quote($this->searchSeparator, '#') . '#',
-            $this->replacementSeparator,
-            $value
-        );
+        return $this->filter($value);
     }
 }

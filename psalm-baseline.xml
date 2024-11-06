@@ -615,26 +615,6 @@
       <code><![CDATA[$matches[2]]]></code>
     </MixedArrayAccess>
   </file>
-  <file src="src/Word/SeparatorToSeparator.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <DocblockTypeContradiction>
-      <code><![CDATA[$this->searchSeparator === null]]></code>
-    </DocblockTypeContradiction>
-    <MixedReturnStatement>
-      <code><![CDATA[self::applyFilterOnlyToStringableValuesAndStringableArrayValues(
-            $value,
-            Closure::fromCallable([$this, 'filterNormalizedValue'])
-        )]]></code>
-    </MixedReturnStatement>
-  </file>
-  <file src="src/Word/Service/SeparatorToSeparatorFactory.php">
-    <UnusedParam>
-      <code><![CDATA[$container]]></code>
-      <code><![CDATA[$requestedName]]></code>
-    </UnusedParam>
-  </file>
   <file src="test/AllowListTest.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[defaultTestProvider]]></code>
