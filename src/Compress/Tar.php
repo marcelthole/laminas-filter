@@ -5,244 +5,124 @@ declare(strict_types=1);
 namespace Laminas\Filter\Compress;
 
 use Archive_Tar;
-use Laminas\Filter\Exception;
+use Laminas\Filter\Exception\ExtensionNotLoadedException;
+use Laminas\Filter\Exception\InvalidArgumentException;
+use Laminas\Filter\Exception\RuntimeException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use SplFileInfo;
 
+use function assert;
 use function class_exists;
 use function dirname;
 use function extension_loaded;
 use function file_exists;
-use function file_put_contents;
 use function is_dir;
-use function realpath;
-use function str_replace;
+use function is_string;
+use function sprintf;
 use function strtolower;
 
-use const DIRECTORY_SEPARATOR;
-
 /**
- * Compression adapter for Tar
- *
  * @psalm-type Options = array{
- *     archive?: string|null,
- *     target?: string,
- *     mode?: 'gz'|'bz2'|null,
+ *     mode?: 'gz'|'bz2'|'GZ'|'BZ2'|null,
  * }
- * @extends AbstractCompressionAlgorithm<Options>
  */
-final class Tar extends AbstractCompressionAlgorithm
+final class Tar implements FileCompressionAdapterInterface
 {
-    /**
-     * Compression Options
-     * array(
-     *     'archive' => Archive to use
-     *     'target'  => Target to write the files to
-     * )
-     *
-     * @var Options
-     */
-    protected $options = [
-        'archive' => null,
-        'target'  => '.',
-        'mode'    => null,
-    ];
+    /** @var 'gz'|'bz2' */
+    private readonly string $mode;
 
     /**
-     * @param Options $options (Optional) Options to set
-     * @throws Exception\ExtensionNotLoadedException If Archive_Tar component not available.
+     * @param Options $options
+     * @throws ExtensionNotLoadedException If Archive_Tar component not available.
      */
-    public function __construct($options = null)
+    public function __construct(array $options = [])
     {
         if (! class_exists('Archive_Tar')) {
-            throw new Exception\ExtensionNotLoadedException(
+            throw new ExtensionNotLoadedException(
                 'This filter needs PEAR\'s Archive_Tar component. '
-                . 'Ensure loading Archive_Tar (registering autoload or require_once)'
+                . 'Ensure loading Archive_Tar (registering autoload or require_once)',
             );
         }
 
-        parent::__construct($options);
-    }
+        /** @psalm-var 'gz'|'bz2' $mode */
+        $mode       = strtolower($options['mode'] ?? 'gz');
+        $this->mode = $mode;
 
-    /**
-     * Returns the set archive
-     *
-     * @return string|null
-     */
-    public function getArchive()
-    {
-        return $this->options['archive'] ?? null;
-    }
-
-    /**
-     * Sets the archive to use for de-/compression
-     *
-     * @param  string $archive Archive to use
-     * @return self
-     */
-    public function setArchive($archive)
-    {
-        $archive                  = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, (string) $archive);
-        $this->options['archive'] = $archive;
-
-        return $this;
-    }
-
-    /**
-     * Returns the set target path
-     *
-     * @return string
-     */
-    public function getTarget()
-    {
-        return $this->options['target'];
-    }
-
-    /**
-     * Sets the target path to use
-     *
-     * @param  string $target
-     * @return self
-     * @throws Exception\InvalidArgumentException If target path does not exist.
-     */
-    public function setTarget($target)
-    {
-        if (! file_exists(dirname($target))) {
-            throw new Exception\InvalidArgumentException("The directory '$target' does not exist");
+        if ($this->mode === 'bz2' && ! extension_loaded('bz2')) {
+            throw new ExtensionNotLoadedException('This mode needs the bz2 extension');
         }
 
-        $target                  = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, (string) $target);
-        $this->options['target'] = $target;
-        return $this;
+        if ($this->mode === 'gz' && ! extension_loaded('zlib')) {
+            throw new ExtensionNotLoadedException('This mode needs the zlib extension');
+        }
     }
 
-    /**
-     * Returns the set compression mode
-     *
-     * @return string|null
-     */
-    public function getMode()
+    public function compressFile(string $archivePath, string $filePath): void
     {
-        return $this->options['mode'] ?? null;
-    }
-
-    /**
-     * Compression mode to use
-     *
-     * Either Gz or Bz2.
-     *
-     * @param string $mode
-     * @return self
-     * @throws Exception\InvalidArgumentException For invalid $mode values.
-     * @throws Exception\ExtensionNotLoadedException If bz2 mode selected but extension not loaded.
-     * @throws Exception\ExtensionNotLoadedException If gz mode selected but extension not loaded.
-     */
-    public function setMode($mode)
-    {
-        $mode = strtolower($mode);
-        if ($mode !== 'bz2' && $mode !== 'gz') {
-            throw new Exception\InvalidArgumentException("The mode '$mode' is unknown");
+        if (! file_exists($filePath)) {
+            throw new InvalidArgumentException(sprintf('The file %s does not exist', $filePath));
         }
 
-        if ($mode === 'bz2' && ! extension_loaded('bz2')) {
-            throw new Exception\ExtensionNotLoadedException('This mode needs the bz2 extension');
-        }
-
-        if ($mode === 'gz' && ! extension_loaded('zlib')) {
-            throw new Exception\ExtensionNotLoadedException('This mode needs the zlib extension');
-        }
-
-        $this->options['mode'] = $mode;
-        return $this;
-    }
-
-    /**
-     * Compresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException If unable to create temporary file.
-     * @throws Exception\RuntimeException If unable to create archive.
-     */
-    public function compress($content)
-    {
-        $archive = new Archive_Tar($this->getArchive(), $this->getMode());
-        if (! file_exists($content)) {
-            $file = $this->getTarget();
-            if (is_dir($file)) {
-                $file .= DIRECTORY_SEPARATOR . 'tar.tmp';
-            }
-
-            $result = file_put_contents($file, $content);
-            if ($result === false) {
-                throw new Exception\RuntimeException('Error creating the temporary file');
-            }
-
-            $content = $file;
-        }
-
-        if (is_dir($content)) {
-            // collect all file infos
-            foreach (
-                new RecursiveIteratorIterator(
-                    new RecursiveDirectoryIterator($content, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
-                    RecursiveIteratorIterator::SELF_FIRST
-                ) as $directory => $info
-            ) {
-                if ($info->isFile()) {
-                    $file[] = $directory;
-                }
-            }
-
-            $content = $file;
-        }
-
-        $result = $archive->create($content);
+        $archive = new Archive_Tar($archivePath, $this->mode);
+        $result  = $archive->createModify([$filePath], '', dirname($filePath));
         if ($result === false) {
-            throw new Exception\RuntimeException('Error creating the Tar archive');
+            throw new RuntimeException('Error creating the Tar archive');
         }
-
-        return $this->getArchive();
     }
 
-    /**
-     * Decompresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException If unable to find archive.
-     * @throws Exception\RuntimeException If error occurs decompressing archive.
-     */
-    public function decompress($content)
+    public function compressDirectoryContents(string $archivePath, string $directory): void
     {
-        $archive = (string) $this->getArchive();
-        if (file_exists($content)) {
-            $archive = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, realpath($content));
-        } elseif ($archive === '' || ! file_exists($archive)) {
-            throw new Exception\RuntimeException('Tar Archive not found');
+        if (! is_dir($directory)) {
+            throw new InvalidArgumentException('The directory argument is not a directory');
         }
 
-        $archive = new Archive_Tar($archive, $this->getMode());
-        $target  = $this->getTarget();
-        if (! is_dir($target)) {
-            $target = dirname($target) . DIRECTORY_SEPARATOR;
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
+            RecursiveIteratorIterator::SELF_FIRST,
+        );
+
+        $files = [];
+
+        foreach ($iterator as $key => $item) {
+            assert(is_string($key));
+            assert($item instanceof SplFileInfo);
+
+            if (! $item->isFile()) {
+                continue;
+            }
+
+            $files[] = $key;
         }
 
-        $result = $archive->extract($target);
+        $archive = new Archive_Tar($archivePath, $this->mode);
+        $result  = $archive->createModify($files, '', $directory);
         if ($result === false) {
-            throw new Exception\RuntimeException('Error while extracting the Tar archive');
+            throw new RuntimeException('Error creating the Tar archive');
         }
-
-        return $target;
     }
 
-    /**
-     * Returns the adapter name
-     *
-     * @return string
-     */
-    public function toString()
+    public function compressStringToFile(string $archivePath, string $fileName, string $fileContents): void
     {
-        return 'Tar';
+        $archive = new Archive_Tar($archivePath, $this->mode);
+        $result  = $archive->addString($fileName, $fileContents);
+        if ($result === false) {
+            throw new RuntimeException('Error creating the Tar archive');
+        }
+    }
+
+    public function decompressArchive(string $archivePath, string $targetDirectory): void
+    {
+        if (! file_exists($archivePath)) {
+            throw new InvalidArgumentException(sprintf('An archive does not exist at %s', $archivePath));
+        }
+
+        $archive = new Archive_Tar($archivePath, $this->mode);
+
+        $result = $archive->extract($targetDirectory);
+
+        if ($result === false) {
+            throw new RuntimeException('Error while extracting the Tar archive');
+        }
     }
 }

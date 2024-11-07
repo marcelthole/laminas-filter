@@ -4,28 +4,36 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Laminas\Filter\Compress\Zip as ZipCompression;
-use Laminas\Filter\Exception;
-use PHPUnit\Framework\Attributes\Group;
+use Laminas\Filter\Compress\Zip;
+use Laminas\Filter\Exception\InvalidArgumentException;
+use Laminas\Filter\Exception\RuntimeException;
+use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
+use function assert;
+use function chmod;
 use function extension_loaded;
-use function file_exists;
 use function file_get_contents;
-use function file_put_contents;
-use function getenv;
 use function is_dir;
 use function is_string;
 use function mkdir;
+use function restore_error_handler;
 use function rmdir;
-use function str_replace;
+use function set_error_handler;
+use function sprintf;
 use function sys_get_temp_dir;
+use function uniqid;
 use function unlink;
 
 use const DIRECTORY_SEPARATOR;
+use const E_WARNING;
 
 class ZipTest extends TestCase
 {
+    /** @var non-empty-string */
     private string $tmp;
 
     public function setUp(): void
@@ -34,301 +42,177 @@ class ZipTest extends TestCase
             self::markTestSkipped('This adapter needs the zip extension');
         }
 
-        $this->tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . str_replace('\\', '_', self::class);
-
-        $files = [
-            $this->tmp . '/compressed.zip',
-            $this->tmp . '/zipextracted.txt',
-            $this->tmp . '/zip.tmp',
-            $this->tmp . '/_files/_compress/Compress/First/Second/zipextracted.txt',
-            $this->tmp . '/_files/_compress/Compress/First/Second',
-            $this->tmp . '/_files/_compress/Compress/First/zipextracted.txt',
-            $this->tmp . '/_files/_compress/Compress/First',
-            $this->tmp . '/_files/_compress/Compress/zipextracted.txt',
-            $this->tmp . '/_files/_compress/Compress',
-            $this->tmp . '/_files/_compress/zipextracted.txt',
-            $this->tmp . '/_files/_compress',
-        ];
-
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                if (is_dir($file)) {
-                    rmdir($file);
-                } else {
-                    unlink($file);
-                }
-            }
-        }
-
-        if (! file_exists($this->tmp . '/Compress/First/Second')) {
-            mkdir($this->tmp . '/Compress/First/Second', 0777, true);
-            file_put_contents($this->tmp . '/Compress/First/Second/zipextracted.txt', 'compress me');
-            file_put_contents($this->tmp . '/Compress/First/zipextracted.txt', 'compress me');
-            file_put_contents($this->tmp . '/Compress/zipextracted.txt', 'compress me');
-        }
+        $this->tmp = sprintf('%s%s%s', sys_get_temp_dir(), DIRECTORY_SEPARATOR, uniqid('laminas_'));
+        mkdir($this->tmp);
     }
 
     public function tearDown(): void
     {
-        $files = [
-            $this->tmp . '/compressed.zip',
-            $this->tmp . '/zipextracted.txt',
-            $this->tmp . '/zip.tmp',
-            $this->tmp . '/_compress/Compress/First/Second/zipextracted.txt',
-            $this->tmp . '/_compress/Compress/First/Second',
-            $this->tmp . '/_compress/Compress/First/zipextracted.txt',
-            $this->tmp . '/_compress/Compress/First',
-            $this->tmp . '/_compress/Compress/zipextracted.txt',
-            $this->tmp . '/_compress/Compress',
-            $this->tmp . '/_compress/zipextracted.txt',
-            $this->tmp . '/_compress',
-        ];
+        if (! is_dir($this->tmp)) {
+            return;
+        }
 
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                if (is_dir($file)) {
-                    rmdir($file);
-                } else {
-                    unlink($file);
-                }
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($this->tmp, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
+            RecursiveIteratorIterator::CHILD_FIRST,
+        );
+
+        foreach ($iterator as $key => $item) {
+            assert(is_string($key));
+            assert($item instanceof SplFileInfo);
+            if ($item->isFile()) {
+                unlink($key);
+                continue;
+            }
+
+            if ($item->isDir() && $item->getBasename() !== '.' && $item->getBasename() !== '..') {
+                rmdir($key);
             }
         }
 
-        if (! file_exists($this->tmp . '/Compress/First/Second')) {
-            mkdir($this->tmp . '/Compress/First/Second', 0777, true);
-            file_put_contents($this->tmp . '/Compress/First/Second/zipextracted.txt', 'compress me');
-            file_put_contents($this->tmp . '/Compress/First/zipextracted.txt', 'compress me');
-            file_put_contents($this->tmp . '/Compress/zipextracted.txt', 'compress me');
+        rmdir($this->tmp);
+    }
+
+    public function testFilesCanBeCompressedToAnArchive(): void
+    {
+        $archive    = $this->tmp . '/archive.zip';
+        $expectFile = $this->tmp . '/File1.txt';
+        $sourceFile = __DIR__ . '/fixtures/directory-to-compress/File1.txt';
+
+        $adapter = new Zip();
+
+        self::assertFileDoesNotExist($archive);
+        $adapter->compressFile($archive, $sourceFile);
+        self::assertFileExists($archive);
+
+        self::assertFileDoesNotExist($expectFile);
+        $adapter->decompressArchive($archive, $this->tmp);
+        self::assertFileExists($expectFile);
+
+        self::assertSame(
+            file_get_contents($sourceFile),
+            file_get_contents($expectFile),
+        );
+    }
+
+    public function testStringsCanBeCompressedToAFile(): void
+    {
+        $archive    = $this->tmp . '/archive.zip';
+        $expectFile = $this->tmp . '/SomeFile.txt';
+        $content    = 'Some Contents';
+
+        $adapter = new Zip();
+
+        self::assertFileDoesNotExist($archive);
+        $adapter->compressStringToFile($archive, 'SomeFile.txt', $content);
+        self::assertFileExists($archive);
+
+        self::assertFileDoesNotExist($expectFile);
+        $adapter->decompressArchive($archive, $this->tmp);
+        self::assertFileExists($expectFile);
+
+        self::assertSame(
+            $content,
+            file_get_contents($expectFile),
+        );
+    }
+
+    public function testDirectoryCompression(): void
+    {
+        $archive = $this->tmp . '/archive.zip';
+        $source  = __DIR__ . '/fixtures/directory-to-compress';
+
+        $adapter = new Zip();
+
+        self::assertFileDoesNotExist($archive);
+        $adapter->compressDirectoryContents($archive, $source);
+        self::assertFileExists($archive);
+
+        $adapter->decompressArchive($archive, $this->tmp);
+
+        self::assertFileExists($this->tmp . '/File1.txt');
+        self::assertFileExists($this->tmp . '/File2.txt');
+        self::assertFileExists($this->tmp . '/nested/File3.txt');
+    }
+
+    public function testCompressingNonExistentDirectory(): void
+    {
+        $archive = $this->tmp . '/archive.zip';
+        $adapter = new Zip();
+        try {
+            $adapter->compressDirectoryContents($archive, 'Not-Found');
+            self::fail('An exception was expected');
+        } catch (InvalidArgumentException $e) {
+            self::assertSame('The directory argument is not a directory', $e->getMessage());
+        } finally {
+            self::assertFileDoesNotExist($archive);
         }
     }
 
-    /**
-     * Basic usage
-     */
-    public function testBasicUsage(): void
+    #[WithoutErrorHandler]
+    public function testCompressingANonExistentFile(): void
     {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
+        // ZipArchive emits warnings for non-existent files too so we will swallow warnings here
+        set_error_handler(
+            static fn (int $_a, string $_b): bool => true, // phpcs:ignore
+            E_WARNING,
+        );
+
+        $archive = $this->tmp . '/archive.zip';
+        $adapter = new Zip();
+        try {
+            $adapter->compressFile($archive, 'Not-Found.txt');
+            self::fail('An exception was expected');
+        } catch (RuntimeException $e) {
+            self::assertSame('Failed to add the file Not-Found.txt to the archive', $e->getMessage());
+        } finally {
+            self::assertFileDoesNotExist($archive);
+            restore_error_handler();
         }
-
-        $filter = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/zipextracted.txt',
-            ]
-        );
-
-        $content = $filter->compress('compress me');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/zipextracted.txt');
-        self::assertSame('compress me', $content);
     }
 
-    /**
-     * Setting Options
-     */
-    public function testZipGetSetOptions(): void
+    public function testCompressionToAnUnWritableDirectory(): void
     {
-        $filter = new ZipCompression();
-        self::assertSame(['archive' => null, 'target' => null], $filter->getOptions());
-
-        self::assertSame(null, $filter->getOptions('archive'));
-
-        self::assertNull($filter->getOptions('nooption'));
-        $filter->setOptions(['nooption' => 'foo']);
-        self::assertNull($filter->getOptions('nooption'));
-
-        $filter->setOptions(['archive' => 'temp.txt']);
-        self::assertSame('temp.txt', $filter->getOptions('archive'));
-    }
-
-    /**
-     * Setting Archive
-     */
-    public function testZipGetSetArchive(): void
-    {
-        $filter = new ZipCompression();
-        self::assertSame(null, $filter->getArchive());
-        $filter->setArchive('Testfile.txt');
-        self::assertSame('Testfile.txt', $filter->getArchive());
-        self::assertSame('Testfile.txt', $filter->getOptions('archive'));
-    }
-
-    /**
-     * Setting Target
-     */
-    public function testZipGetSetTarget(): void
-    {
-        $filter = new ZipCompression();
-        self::assertNull($filter->getTarget());
-        $filter->setTarget('Testfile.txt');
-        self::assertSame('Testfile.txt', $filter->getTarget());
-        self::assertSame('Testfile.txt', $filter->getOptions('target'));
-
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('does not exist');
-        $filter->setTarget('/unknown/path/to/file.txt');
-    }
-
-    /**
-     * Compress to Archive
-     */
-    public function testZipCompressFile(): void
-    {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
+        $dir = $this->tmp . '/un-writable';
+        mkdir($dir);
+        chmod($dir, 0400);
+        $archive = $dir . '/archive.zip';
+        $adapter = new Zip();
+        try {
+            $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+            self::fail('An exception was expected');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('The archive could not be opened', $e->getMessage());
+        } finally {
+            chmod($dir, 0700);
+            self::assertFileDoesNotExist($archive);
         }
-
-        $filter = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/zipextracted.txt',
-            ]
-        );
-        file_put_contents($this->tmp . '/zipextracted.txt', 'compress me');
-
-        $content = $filter->compress($this->tmp . '/zipextracted.txt');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/zipextracted.txt');
-        self::assertSame('compress me', $content);
     }
 
-    /**
-     * Basic usage
-     */
-    public function testCompressNonExistingTargetFile(): void
+    #[WithoutErrorHandler]
+    public function testDecompressionToAnUnWritableTargetDirectory(): void
     {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
+        // ZipArchive emits warnings here
+        set_error_handler(
+            static fn (int $_a, string $_b): bool => true, // phpcs:ignore
+            E_WARNING,
+        );
+
+        $dir = $this->tmp . '/un-writable';
+        mkdir($dir);
+        chmod($dir, 0400);
+        $archive = $this->tmp . '/archive.zip';
+        $adapter = new Zip();
+        $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+
+        try {
+            $adapter->decompressArchive($archive, $dir);
+            self::fail('An exception was expected');
+        } catch (RuntimeException $e) {
+            self::assertStringContainsString('Failed to extract archive to the target directory', $e->getMessage());
+        } finally {
+            chmod($dir, 0700);
+            restore_error_handler();
         }
-
-        $filter = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp,
-            ]
-        );
-
-        $content = $filter->compress('compress me');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/zip.tmp');
-        self::assertSame('compress me', $content);
-    }
-
-    /**
-     * Compress directory to Archive
-     */
-    public function testZipCompressDirectory(): void
-    {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
-        }
-
-        $filter  = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/_compress',
-            ]
-        );
-        $content = $filter->compress($this->tmp . '/Compress');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        mkdir($this->tmp . DIRECTORY_SEPARATOR . '_compress');
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . '_compress'
-                            . DIRECTORY_SEPARATOR, $content);
-
-        $base = $this->tmp . DIRECTORY_SEPARATOR . '_compress' . DIRECTORY_SEPARATOR . 'Compress' . DIRECTORY_SEPARATOR;
-        self::assertFileExists($base);
-        self::assertFileExists($base . 'zipextracted.txt');
-        self::assertFileExists($base . 'First' . DIRECTORY_SEPARATOR . 'zipextracted.txt');
-        self::assertFileExists($base . 'First' . DIRECTORY_SEPARATOR
-                          . 'Second' . DIRECTORY_SEPARATOR . 'zipextracted.txt');
-        $content = file_get_contents($this->tmp . '/Compress/zipextracted.txt');
-        self::assertSame('compress me', $content);
-    }
-
-    /**
-     * testing toString
-     */
-    public function testZipToString(): void
-    {
-        $filter = new ZipCompression();
-        self::assertSame('Zip', $filter->toString());
-    }
-
-    public function testDecompressWillThrowExceptionWhenDecompressingWithNoTarget(): void
-    {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
-        }
-
-        $filter = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/_compress',
-            ]
-        );
-
-        $content = $filter->compress('compress me');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        $filter  = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/_compress',
-            ]
-        );
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/_compress');
-        self::assertSame('compress me', $content);
-    }
-
-    #[Group('6026')]
-    public function testDecompressWhenNoArchieveInClass(): void
-    {
-        if (! $this->zipEnabled()) {
-            self::markTestSkipped('ZIP compression tests are currently disabled');
-        }
-
-        $filter = new ZipCompression(
-            [
-                'archive' => $this->tmp . '/compressed.zip',
-                'target'  => $this->tmp . '/_compress',
-            ]
-        );
-
-        $content = $filter->compress('compress me');
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.zip', $content);
-
-        $filter  = new ZipCompression(
-            [
-                'target' => $this->tmp . '/_compress',
-            ]
-        );
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/_compress');
-        self::assertSame('compress me', $content);
-    }
-
-    private function zipEnabled(): bool
-    {
-        /**
-         * PHPUnit casts true|false env vars to "1"|""
-         */
-        $value = getenv('TESTS_LAMINAS_FILTER_COMPRESS_ZIP_ENABLED');
-
-        return is_string($value) && (int) $value === 1;
     }
 }

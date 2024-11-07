@@ -4,241 +4,247 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Laminas\Filter\Compress\Tar as TarCompression;
-use Laminas\Filter\Exception;
+use Archive_Tar;
+use InvalidArgumentException;
+use Laminas\Filter\Compress\Tar;
+use Laminas\Filter\Exception\RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 
-use function dirname;
-use function extension_loaded;
-use function file_exists;
+use function assert;
+use function chmod;
+use function class_exists;
 use function file_get_contents;
-use function file_put_contents;
-use function implode;
 use function is_dir;
-use function microtime;
+use function is_string;
 use function mkdir;
 use function rmdir;
 use function sprintf;
-use function strtolower;
-use function sys_get_temp_dir;
-use function uniqid;
+use function trim;
 use function unlink;
-
-use const DIRECTORY_SEPARATOR;
 
 class TarTest extends TestCase
 {
-    public string $tmp;
+    /** @var non-empty-string */
+    private string $dir;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->tmp = sprintf('%s/%s', sys_get_temp_dir(), uniqid('laminasilter'));
-        mkdir($this->tmp, 0775, true);
+        if (! class_exists(Archive_Tar::class)) {
+            self::markTestSkipped('Archive_Tar must be installed from PEAR for these tests');
+        }
+
+        $this->dir = __DIR__ . '/tmp';
+        if (! is_dir($this->dir)) {
+            mkdir($this->dir);
+        }
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
-        $files = [
-            $this->tmp . '/zipextracted.txt',
-            $this->tmp . '/_compress/Compress/First/Second/zipextracted.txt',
-            $this->tmp . '/_compress/Compress/First/Second',
-            $this->tmp . '/_compress/Compress/First/zipextracted.txt',
-            $this->tmp . '/_compress/Compress/First',
-            $this->tmp . '/_compress/Compress/zipextracted.txt',
-            $this->tmp . '/_compress/Compress',
-            $this->tmp . '/_compress/zipextracted.txt',
-            $this->tmp . '/_compress',
-            $this->tmp . '/compressed.tar',
-            $this->tmp . '/compressed.tar.gz',
-            $this->tmp . '/compressed.tar.bz2',
-        ];
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($this->dir, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
+            RecursiveIteratorIterator::CHILD_FIRST,
+        );
 
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                if (is_dir($file)) {
-                    rmdir($file);
-                } else {
-                    unlink($file);
-                }
+        foreach ($iterator as $key => $item) {
+            assert(is_string($key));
+            assert($item instanceof SplFileInfo);
+            if ($item->isFile()) {
+                unlink($key);
+                continue;
+            }
+
+            if ($item->isDir() && $item->getBasename() !== '.' && $item->getBasename() !== '..') {
+                rmdir($key);
             }
         }
+
+        rmdir($this->dir);
     }
 
-    /**
-     * Basic usage
-     */
-    public function testBasicUsage(): void
+    /** @return array<string, array{0:string|null}> */
+    public static function modeProvider(): array
     {
-        $filter = new TarCompression(
-            [
-                'archive' => $this->tmp . '/compressed.tar',
-                'target'  => $this->tmp . '/zipextracted.txt',
-            ]
-        );
-
-        $content = $filter->compress('compress me');
-        self::assertSame(
-            $this->tmp . DIRECTORY_SEPARATOR . 'compressed.tar',
-            $content
-        );
-
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/zipextracted.txt');
-        self::assertSame('compress me', $content);
+        return [
+            'bz2'  => ['bz2'],
+            'gz'   => ['gz'],
+            'BZ2'  => ['BZ2'],
+            'GZ'   => ['GZ'],
+            'Bz2'  => ['Bz2'],
+            'Gz'   => ['Gz'],
+            'null' => [null],
+        ];
     }
 
-    /**
-     * Setting Options
-     */
-    public function testTarGetSetOptions(): void
+    #[DataProvider('modeProvider')]
+    public function testCompressedStringContentsWillBeDecompressedToTheExpectedFile(string|null $mode): void
     {
-        $filter = new TarCompression();
-        self::assertSame(
-            [
-                'archive' => null,
-                'target'  => '.',
-                'mode'    => null,
-            ],
-            $filter->getOptions()
-        );
+        $value      = 'Some Content';
+        $archive    = $this->dir . '/test.tar';
+        $expectFile = $this->dir . '/SomeFile.txt';
 
-        self::assertSame(null, $filter->getOptions('archive'));
+        self::assertFileDoesNotExist($archive);
 
-        self::assertNull($filter->getOptions('nooption'));
-        $filter->setOptions(['nooptions' => 'foo']);
-        self::assertNull($filter->getOptions('nooption'));
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $adapter = new Tar(['mode' => $mode]);
+        $adapter->compressStringToFile($archive, 'SomeFile.txt', $value);
 
-        $filter->setOptions(['archive' => 'temp.txt']);
-        self::assertSame('temp.txt', $filter->getOptions('archive'));
+        self::assertFileExists($archive);
+
+        $adapter->decompressArchive($archive, $this->dir);
+
+        self::assertFileExists($expectFile);
+        self::assertSame($value, file_get_contents($expectFile));
     }
 
-    /**
-     * Setting Archive
-     */
-    public function testTarGetSetArchive(): void
+    #[DataProvider('modeProvider')]
+    public function testTheContentsOfADirectoryWillBeCompressed(string|null $mode): void
     {
-        $filter = new TarCompression();
-        self::assertSame(null, $filter->getArchive());
-        $filter->setArchive('Testfile.txt');
-        self::assertSame('Testfile.txt', $filter->getArchive());
-        self::assertSame('Testfile.txt', $filter->getOptions('archive'));
-    }
+        $target  = __DIR__ . '/fixtures/directory-to-compress';
+        $archive = $this->dir . '/test.tar';
+        self::assertFileDoesNotExist($archive);
 
-    /**
-     * Setting Target
-     */
-    public function testTarGetSetTarget(): void
-    {
-        $filter = new TarCompression();
-        self::assertSame('.', $filter->getTarget());
-        $filter->setTarget('Testfile.txt');
-        self::assertSame('Testfile.txt', $filter->getTarget());
-        self::assertSame('Testfile.txt', $filter->getOptions('target'));
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $adapter = new Tar(['mode' => $mode]);
+        $adapter->compressDirectoryContents($archive, $target);
+        self::assertFileExists($archive);
 
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('does not exist');
-        $filter->setTarget('/unknown/path/to/file.txt');
-    }
+        $adapter->decompressArchive($archive, $this->dir);
 
-    /**
-     * Setting Archive
-     */
-    public function testTarCompressToFile(): void
-    {
-        $filter = new TarCompression(
-            [
-                'archive' => $this->tmp . '/compressed.tar',
-                'target'  => $this->tmp . '/zipextracted.txt',
-            ]
-        );
-        file_put_contents($this->tmp . '/zipextracted.txt', 'compress me');
+        $expect = [
+            $this->dir . '/File1.txt',
+            $this->dir . '/File2.txt',
+            $this->dir . '/nested/File3.txt',
+        ];
 
-        $content = $filter->compress($this->tmp . '/zipextracted.txt');
-        self::assertSame(
-            $this->tmp . DIRECTORY_SEPARATOR . 'compressed.tar',
-            $content
-        );
-
-        $content = $filter->decompress($content);
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR, $content);
-        $content = file_get_contents($this->tmp . '/zipextracted.txt');
-        self::assertSame('compress me', $content);
-    }
-
-    /**
-     * Compress directory to Filename
-     */
-    public function testTarCompressDirectory(): void
-    {
-        $filter  = new TarCompression(
-            [
-                'archive' => $this->tmp . '/compressed.tar',
-                'target'  => $this->tmp . '/_compress',
-            ]
-        );
-        $content = $filter->compress(dirname(__DIR__) . '/_files/Compress');
-        self::assertSame(
-            $this->tmp . DIRECTORY_SEPARATOR . 'compressed.tar',
-            $content
-        );
-    }
-
-    public function testSetModeShouldWorkWithCaseInsensitive(): void
-    {
-        if (! extension_loaded('bz2')) {
-            self::markTestSkipped('This adapter needs the bz2 extension');
-        }
-
-        $filter = new TarCompression();
-        $filter->setTarget($this->tmp . '/zipextracted.txt');
-
-        foreach (['GZ', 'Bz2'] as $mode) {
-            $archive = implode(DIRECTORY_SEPARATOR, [
-                $this->tmp,
-                'compressed.tar.',
-            ]) . strtolower($mode);
-            $filter->setArchive($archive);
-            $filter->setMode($mode);
-            $content = $filter->compress('compress me');
-            self::assertSame($archive, $content);
+        foreach ($expect as $path) {
+            self::assertFileExists($path);
         }
     }
 
-    /**
-     * testing toString
-     */
-    public function testTarToString(): void
+    #[DataProvider('modeProvider')]
+    public function testASingleFileCanBeCompressed(string|null $mode): void
     {
-        $filter = new TarCompression();
-        self::assertSame('Tar', $filter->toString());
+        $archive = $this->dir . '/test.tar';
+        self::assertFileDoesNotExist($archive);
+
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $adapter = new Tar(['mode' => $mode]);
+        $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+
+        self::assertFileExists($archive);
+
+        $adapter->decompressArchive($archive, $this->dir);
+
+        $expectFile = $this->dir . '/File1.txt';
+
+        self::assertFileExists($expectFile);
+        self::assertSame('File 1', trim(file_get_contents($expectFile)));
     }
 
-    /**
-     * @see https://github.com/zendframework/zend-filter/issues/41
-     */
-    public function testDecompressionDoesNotRequireArchive(): void
+    public function testCompressFileThatDoesNotExist(): void
     {
-        $filter = new TarCompression([
-            'archive' => $this->tmp . '/compressed.tar',
-            'target'  => $this->tmp . '/zipextracted.txt',
-        ]);
+        $adapter = new Tar();
+        $archive = $this->dir . '/test.tar';
 
-        $content    = 'compress me ' . microtime(true);
-        $compressed = $filter->compress($content);
+        $this->expectException(InvalidArgumentException::class);
 
-        self::assertSame($this->tmp . DIRECTORY_SEPARATOR . 'compressed.tar', $compressed);
+        $adapter->compressFile($archive, __DIR__ . '/not-there.txt');
+    }
 
-        $target = $this->tmp;
-        $filter = new TarCompression([
-            'target' => $target,
-        ]);
+    public function testCompressDirectoryThatDoesNotExist(): void
+    {
+        $adapter = new Tar();
+        $archive = $this->dir . '/test.tar';
 
-        $decompressed = $filter->decompress($compressed);
-        self::assertSame($target, $decompressed);
-        // per documentation, tar includes full path
-        $file = $target . DIRECTORY_SEPARATOR . $target . DIRECTORY_SEPARATOR . '/zipextracted.txt';
-        self::assertFileExists($file);
-        self::assertSame($content, file_get_contents($file));
+        $this->expectException(InvalidArgumentException::class);
+
+        $adapter->compressDirectoryContents($archive, __DIR__ . '/not-there');
+    }
+
+    public function testDecompressAnArchiveThatDoesNotExist(): void
+    {
+        $adapter = new Tar();
+        $archive = $this->dir . '/test.tar';
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $adapter->decompressArchive($archive, $this->dir);
+    }
+
+    private function makeReadOnlyDirectory(): string
+    {
+        $target = $this->dir . '/un-writable';
+        mkdir($target);
+        chmod($target, 0400);
+
+        return $target;
+    }
+
+    public function testDecompressAnArchiveToUnWritableTarget(): void
+    {
+        $adapter = new Tar();
+        $archive = __DIR__ . '/fixtures/Archive.tar';
+
+        $target = $this->makeReadOnlyDirectory();
+
+        try {
+            $adapter->decompressArchive($archive, $target);
+
+            self::fail('An exception was not thrown');
+        } catch (RuntimeException $e) {
+            self::assertSame('Error while extracting the Tar archive', $e->getMessage());
+        } finally {
+            chmod($target, 0700);
+        }
+    }
+
+    public function testCompressStringToUnWritableTarget(): void
+    {
+        $adapter = new Tar();
+        $dir     = $this->makeReadOnlyDirectory();
+        $archive = sprintf('%s/Test.tar', $dir);
+        try {
+            $adapter->compressStringToFile($archive, 'Foo.txt', 'Foo');
+            self::fail('An exception was not thrown');
+        } catch (RuntimeException $e) {
+            self::assertSame('Error creating the Tar archive', $e->getMessage());
+        } finally {
+            chmod($dir, 0700);
+        }
+    }
+
+    public function testCompressDirectoryToUnWritableTarget(): void
+    {
+        $adapter = new Tar();
+        $dir     = $this->makeReadOnlyDirectory();
+        $archive = sprintf('%s/Test.tar', $dir);
+        try {
+            $adapter->compressDirectoryContents($archive, __DIR__ . '/fixtures/directory-to-compress');
+            self::fail('An exception was not thrown');
+        } catch (RuntimeException $e) {
+            self::assertSame('Error creating the Tar archive', $e->getMessage());
+        } finally {
+            chmod($dir, 0700);
+        }
+    }
+
+    public function testCompressFileToUnWritableTarget(): void
+    {
+        $adapter = new Tar();
+        $dir     = $this->makeReadOnlyDirectory();
+        $archive = sprintf('%s/Test.tar', $dir);
+        try {
+            $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+            self::fail('An exception was not thrown');
+        } catch (RuntimeException $e) {
+            self::assertSame('Error creating the Tar archive', $e->getMessage());
+        } finally {
+            chmod($dir, 0700);
+        }
     }
 }

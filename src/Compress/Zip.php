@@ -4,328 +4,135 @@ declare(strict_types=1);
 
 namespace Laminas\Filter\Compress;
 
-use Laminas\Filter\Exception;
+use Laminas\Filter\Exception\ExtensionNotLoadedException;
+use Laminas\Filter\Exception\InvalidArgumentException;
+use Laminas\Filter\Exception\RuntimeException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use ZipArchive;
 
-use function array_pop;
+use function assert;
 use function basename;
-use function dir;
-use function dirname;
 use function extension_loaded;
-use function file_exists;
+use function file_put_contents;
 use function is_dir;
-use function is_file;
+use function is_int;
 use function is_string;
-use function realpath;
-use function rtrim;
+use function ltrim;
+use function sprintf;
 use function str_replace;
-use function strrpos;
-use function substr;
+use function sys_get_temp_dir;
 
 use const DIRECTORY_SEPARATOR;
 
-/**
- * Compression adapter for zip
- *
- * @psalm-type Options = array{
- *     archive?: string|null,
- *     password?: string|null,
- *     target?: string|null,
- * }
- * @extends AbstractCompressionAlgorithm<Options>
- */
-final class Zip extends AbstractCompressionAlgorithm
+final class Zip implements FileCompressionAdapterInterface
 {
     /**
-     * Compression Options
-     * array(
-     *     'archive'  => Archive to use
-     *     'password' => Password to use
-     *     'target'   => Target to write the files to
-     * )
-     *
-     * @var Options
+     * @throws ExtensionNotLoadedException If zip extension not loaded.
      */
-    protected $options = [
-        'archive' => null,
-        'target'  => null,
-    ];
-
-    /**
-     * @param null|Options|iterable $options (Optional) Options to set
-     * @throws Exception\ExtensionNotLoadedException If zip extension not loaded.
-     */
-    public function __construct($options = null)
+    public function __construct()
     {
         if (! extension_loaded('zip')) {
-            throw new Exception\ExtensionNotLoadedException('This filter needs the zip extension');
+            throw new ExtensionNotLoadedException('This filter needs the zip extension');
         }
-        parent::__construct($options);
     }
 
-    /**
-     * Returns the set archive
-     *
-     * @return string|null
-     */
-    public function getArchive()
+    public function compressFile(string $archivePath, string $filePath): void
     {
-        return $this->options['archive'];
-    }
+        $zip = $this->openArchive($archivePath);
 
-    /**
-     * Sets the archive to use for de-/compression
-     *
-     * @param  string $archive Archive to use
-     * @return self
-     */
-    public function setArchive($archive)
-    {
-        $archive                  = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, (string) $archive);
-        $this->options['archive'] = $archive;
-
-        return $this;
-    }
-
-    /**
-     * Returns the set targetpath
-     *
-     * @return string|null
-     */
-    public function getTarget()
-    {
-        return $this->options['target'];
-    }
-
-    /**
-     * Sets the target to use
-     *
-     * @param  string $target
-     * @throws Exception\InvalidArgumentException
-     * @return self
-     */
-    public function setTarget($target)
-    {
-        if (! file_exists(dirname($target))) {
-            throw new Exception\InvalidArgumentException("The directory '$target' does not exist");
+        $result = $zip->addFile($filePath, basename($filePath));
+        if ($result === false) {
+            throw new RuntimeException(sprintf(
+                'Failed to add the file %s to the archive',
+                $filePath,
+            ));
         }
 
-        $target                  = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, (string) $target);
-        $this->options['target'] = $target;
-        return $this;
+        $zip->close();
     }
 
-    /**
-     * Compresses the given content
-     *
-     * @param  string $content
-     * @return string Compressed archive
-     * @throws Exception\RuntimeException If unable to open zip archive, or error during compression.
-     */
-    public function compress($content)
+    public function compressStringToFile(string $archivePath, string $fileName, string $fileContents): void
     {
-        $zip = new ZipArchive();
-        $res = $zip->open($this->getArchive(), ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-        if ($res !== true) {
-            throw new Exception\RuntimeException($this->errorString($res));
+        $filePath = sprintf('%s%s%s', sys_get_temp_dir(), DIRECTORY_SEPARATOR, basename($fileName));
+        $result   = file_put_contents($filePath, $fileContents);
+        if ($result === false) {
+            throw new RuntimeException('Failed to write contents to a temporary file');
         }
 
-        if (file_exists($content)) {
-            $content  = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, realpath($content));
-            $basename = substr($content, strrpos($content, DIRECTORY_SEPARATOR) + 1);
-            if (is_dir($content)) {
-                $index    = strrpos($content, DIRECTORY_SEPARATOR) + 1;
-                $content .= DIRECTORY_SEPARATOR;
-                $stack    = [$content];
-                while (! empty($stack)) {
-                    $current = array_pop($stack);
-                    $files   = [];
+        $this->compressFile($archivePath, $filePath);
+    }
 
-                    $dir = dir($current);
-                    while (false !== ($node = $dir->read())) {
-                        if ($node === '.' || $node === '..') {
-                            continue;
-                        }
+    public function compressDirectoryContents(string $archivePath, string $directory): void
+    {
+        if (! is_dir($directory)) {
+            throw new InvalidArgumentException('The directory argument is not a directory');
+        }
 
-                        if (is_dir($current . $node)) {
-                            $stack[] = $current . $node . DIRECTORY_SEPARATOR;
-                        }
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
+            RecursiveIteratorIterator::SELF_FIRST,
+        );
 
-                        if (is_file($current . $node)) {
-                            $files[] = $node;
-                        }
-                    }
+        $files = [];
 
-                    $local = substr($current, $index);
-                    $zip->addEmptyDir(substr($local, 0, -1));
+        foreach ($iterator as $key => $item) {
+            assert(is_string($key));
+            assert($item instanceof SplFileInfo);
 
-                    foreach ($files as $file) {
-                        $zip->addFile($current . $file, $local . $file);
-                        if ($res !== true) {
-                            throw new Exception\RuntimeException($this->errorString($res));
-                        }
-                    }
-                }
-            } else {
-                $res = $zip->addFile($content, $basename);
-                if ($res !== true) {
-                    throw new Exception\RuntimeException($this->errorString($res));
-                }
-            }
-        } else {
-            $file = $this->getTarget();
-            if (is_string($file) && ! is_dir($file)) {
-                $file = basename($file);
-            } else {
-                $file = 'zip.tmp';
+            if (! $item->isFile()) {
+                continue;
             }
 
-            $res = $zip->addFromString($file, $content);
-            if ($res !== true) {
-                throw new Exception\RuntimeException($this->errorString($res));
+            $files[] = $key;
+        }
+
+        $zip = $this->openArchive($archivePath);
+
+        foreach ($files as $filePath) {
+            // Relative file path should use '/' separators inside the archive
+            $entry = str_replace($directory, '', $filePath);
+            $entry = ltrim(str_replace('\\', '/', $entry), '/');
+
+            $result = $zip->addFile($filePath, $entry);
+            if ($result === false) {
+                throw new RuntimeException(sprintf(
+                    'Failed to add the file %s to the archive',
+                    $filePath,
+                ));
             }
         }
 
         $zip->close();
-        return $this->options['archive'];
     }
 
-    /**
-     * Decompresses the given content
-     *
-     * @param  string $content
-     * @return string
-     * @throws Exception\RuntimeException If archive file not found, target directory not found,
-     *                                    or error during decompression.
-     */
-    public function decompress($content)
+    public function decompressArchive(string $archivePath, string $targetDirectory): void
     {
-        $archive = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, realpath($content));
-
-        if (empty($archive) || ! file_exists($archive)) {
-            throw new Exception\RuntimeException('ZIP Archive not found');
-        }
-
         $zip = new ZipArchive();
-        $res = $zip->open($archive);
-
-        $target = $this->getTarget();
-        if (is_string($target) && ! is_dir($target)) {
-            $target = dirname($target);
-        }
-
-        if (is_string($target)) {
-            $target = rtrim($target, '/\\') . DIRECTORY_SEPARATOR;
-        }
-
-        if (! is_string($target) || ! is_dir($target)) {
-            throw new Exception\RuntimeException('No target for ZIP decompression set');
-        }
-
-        if ($res !== true) {
-            throw new Exception\RuntimeException($this->errorString($res));
-        }
-
-        $res = $zip->extractTo($target);
-        if ($res !== true) {
-            throw new Exception\RuntimeException($this->errorString($res));
-        }
-
+        $zip->open($archivePath);
+        $result = $zip->extractTo($targetDirectory);
         $zip->close();
-        return $target;
-    }
-
-    /**
-     * Returns the proper string based on the given error constant
-     *
-     * @param  string $error
-     * @return string
-     */
-    public function errorString($error)
-    {
-        switch ($error) {
-            case ZipArchive::ER_MULTIDISK:
-                return 'Multidisk ZIP Archives not supported';
-
-            case ZipArchive::ER_RENAME:
-                return 'Failed to rename the temporary file for ZIP';
-
-            case ZipArchive::ER_CLOSE:
-                return 'Failed to close the ZIP Archive';
-
-            case ZipArchive::ER_SEEK:
-                return 'Failure while seeking the ZIP Archive';
-
-            case ZipArchive::ER_READ:
-                return 'Failure while reading the ZIP Archive';
-
-            case ZipArchive::ER_WRITE:
-                return 'Failure while writing the ZIP Archive';
-
-            case ZipArchive::ER_CRC:
-                return 'CRC failure within the ZIP Archive';
-
-            case ZipArchive::ER_ZIPCLOSED:
-                return 'ZIP Archive already closed';
-
-            case ZipArchive::ER_NOENT:
-                return 'No such file within the ZIP Archive';
-
-            case ZipArchive::ER_EXISTS:
-                return 'ZIP Archive already exists';
-
-            case ZipArchive::ER_OPEN:
-                return 'Can not open ZIP Archive';
-
-            case ZipArchive::ER_TMPOPEN:
-                return 'Failure creating temporary ZIP Archive';
-
-            case ZipArchive::ER_ZLIB:
-                return 'ZLib Problem';
-
-            case ZipArchive::ER_MEMORY:
-                return 'Memory allocation problem while working on a ZIP Archive';
-
-            case ZipArchive::ER_CHANGED:
-                return 'ZIP Entry has been changed';
-
-            case ZipArchive::ER_COMPNOTSUPP:
-                return 'Compression method not supported within ZLib';
-
-            case ZipArchive::ER_EOF:
-                return 'Premature EOF within ZIP Archive';
-
-            case ZipArchive::ER_INVAL:
-                return 'Invalid argument for ZLIB';
-
-            case ZipArchive::ER_NOZIP:
-                return 'Given file is no zip archive';
-
-            case ZipArchive::ER_INTERNAL:
-                return 'Internal error while working on a ZIP Archive';
-
-            case ZipArchive::ER_INCONS:
-                return 'Inconsistent ZIP archive';
-
-            case ZipArchive::ER_REMOVE:
-                return 'Can not remove ZIP Archive';
-
-            case ZipArchive::ER_DELETED:
-                return 'ZIP Entry has been deleted';
-
-            default:
-                return 'Unknown error within ZIP Archive';
+        if ($result === false) {
+            throw new RuntimeException(sprintf(
+                'Failed to extract archive to the target directory: %s',
+                $targetDirectory,
+            ));
         }
     }
 
-    /**
-     * Returns the adapter name
-     *
-     * @return string
-     */
-    public function toString()
+    private function openArchive(string $archivePath): ZipArchive
     {
-        return 'Zip';
+        $zip    = new ZipArchive();
+        $result = $zip->open($archivePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        if (is_int($result)) {
+            throw new RuntimeException(sprintf(
+                'The archive could not be opened. Error code %d',
+                $result,
+            ));
+        }
+
+        return $zip;
     }
 }
