@@ -9,24 +9,16 @@ use Laminas\Filter\Exception\InvalidArgumentException;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Framework\TestCase;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
 
-use function assert;
 use function chmod;
 use function extension_loaded;
 use function file_get_contents;
-use function is_dir;
-use function is_string;
 use function mkdir;
 use function restore_error_handler;
-use function rmdir;
 use function set_error_handler;
 use function sprintf;
 use function sys_get_temp_dir;
 use function uniqid;
-use function unlink;
 
 use const DIRECTORY_SEPARATOR;
 use const E_WARNING;
@@ -48,29 +40,7 @@ class ZipTest extends TestCase
 
     public function tearDown(): void
     {
-        if (! is_dir($this->tmp)) {
-            return;
-        }
-
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($this->tmp, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
-            RecursiveIteratorIterator::CHILD_FIRST,
-        );
-
-        foreach ($iterator as $key => $item) {
-            assert(is_string($key));
-            assert($item instanceof SplFileInfo);
-            if ($item->isFile()) {
-                unlink($key);
-                continue;
-            }
-
-            if ($item->isDir() && $item->getBasename() !== '.' && $item->getBasename() !== '..') {
-                rmdir($key);
-            }
-        }
-
-        rmdir($this->tmp);
+        TmpDirectory::cleanUp($this->tmp);
     }
 
     public function testFilesCanBeCompressedToAnArchive(): void

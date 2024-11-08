@@ -10,21 +10,14 @@ use Laminas\Filter\Compress\Tar;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use SplFileInfo;
 
-use function assert;
 use function chmod;
 use function class_exists;
 use function file_get_contents;
 use function is_dir;
-use function is_string;
 use function mkdir;
-use function rmdir;
 use function sprintf;
 use function trim;
-use function unlink;
 
 class TarTest extends TestCase
 {
@@ -45,25 +38,7 @@ class TarTest extends TestCase
 
     protected function tearDown(): void
     {
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($this->dir, RecursiveDirectoryIterator::KEY_AS_PATHNAME),
-            RecursiveIteratorIterator::CHILD_FIRST,
-        );
-
-        foreach ($iterator as $key => $item) {
-            assert(is_string($key));
-            assert($item instanceof SplFileInfo);
-            if ($item->isFile()) {
-                unlink($key);
-                continue;
-            }
-
-            if ($item->isDir() && $item->getBasename() !== '.' && $item->getBasename() !== '..') {
-                rmdir($key);
-            }
-        }
-
-        rmdir($this->dir);
+        TmpDirectory::cleanUp($this->dir);
     }
 
     /** @return array<string, array{0:string|null}> */
