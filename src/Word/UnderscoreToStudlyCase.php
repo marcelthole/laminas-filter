@@ -23,7 +23,7 @@ final class UnderscoreToStudlyCase implements FilterInterface
         }
 
         /** @var string|array $value */
-        $value = (new SeparatorToCamelCase('_'))->filter($value);
+        $value = (new SeparatorToCamelCase(['separator' => '_']))->filter($value);
 
         return ScalarOrArrayFilterCallback::applyRecursively(
             $value,

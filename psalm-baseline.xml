@@ -22,6 +22,9 @@
     <PossiblyInvalidPropertyAssignmentValue>
       <code><![CDATA[$this->options]]></code>
     </PossiblyInvalidPropertyAssignmentValue>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[applyFilterOnlyToStringableValuesAndStringableArrayValues]]></code>
+    </PossiblyUnusedMethod>
     <RedundantConditionGivenDocblockType>
       <code><![CDATA[is_object($options)]]></code>
     </RedundantConditionGivenDocblockType>
@@ -577,41 +580,17 @@
       <code><![CDATA[is_string($attribute)]]></code>
     </RedundantConditionGivenDocblockType>
   </file>
-  <file src="src/Word/AbstractSeparator.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <DeprecatedMethod>
-      <code><![CDATA[setSeparator]]></code>
-      <code><![CDATA[setSeparator]]></code>
-    </DeprecatedMethod>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$separator]]></code>
-    </PossiblyInvalidArgument>
-    <PossiblyInvalidCast>
-      <code><![CDATA[$separator]]></code>
-    </PossiblyInvalidCast>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[getSeparator]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Word/SeparatorToCamelCase.php">
     <MissingClosureParamType>
-      <code><![CDATA[$matches]]></code>
-      <code><![CDATA[$matches]]></code>
       <code><![CDATA[$matches]]></code>
       <code><![CDATA[$matches]]></code>
     </MissingClosureParamType>
     <MixedArgument>
       <code><![CDATA[$matches[1]]]></code>
-      <code><![CDATA[$matches[1]]]></code>
-      <code><![CDATA[$matches[2]]]></code>
       <code><![CDATA[$matches[2]]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$matches[1]]]></code>
-      <code><![CDATA[$matches[1]]]></code>
-      <code><![CDATA[$matches[2]]]></code>
       <code><![CDATA[$matches[2]]]></code>
     </MixedArrayAccess>
   </file>
@@ -962,14 +941,5 @@
       <code><![CDATA[returnNonStringScalarValues]]></code>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/UnderscoreToCamelCaseTest.php">
-    <MixedAssignment>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-      <code><![CDATA[$filtered]]></code>
-    </MixedAssignment>
   </file>
 </files>

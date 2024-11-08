@@ -168,8 +168,7 @@ The following options are supported for `Laminas\Filter\Word\SeparatorToCamelCas
 ### Basic Usage
 
 ```php
-$filter = new Laminas\Filter\Word\SeparatorToCamelCase(':');
-// or new Laminas\Filter\Word\SeparatorToCamelCase(array('separator' => ':'));
+$filter = new Laminas\Filter\Word\SeparatorToCamelCase(['separator' => ':']);
 
 print $filter->filter('this:is:my:content');
 ```
