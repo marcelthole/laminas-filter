@@ -151,6 +151,7 @@ class TarTest extends TestCase
         $adapter->decompressArchive($archive, $this->dir);
     }
 
+    /** @return non-empty-string */
     private function makeReadOnlyDirectory(): string
     {
         $target = $this->dir . '/un-writable';

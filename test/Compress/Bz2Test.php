@@ -43,6 +43,7 @@ class Bz2Test extends TestCase
         );
     }
 
+    /** @param int<1, 9> $level */
     #[DataProvider('levelProvider')]
     public function testThatDifferentCompressionLevelsWillNotAffectFunctionality(int $level): void
     {

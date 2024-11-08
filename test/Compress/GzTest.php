@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Error;
 use Laminas\Filter\Compress\Gz;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
