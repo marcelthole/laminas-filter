@@ -34,6 +34,7 @@ final class FilterPluginManager extends AbstractPluginManager
             Callback::class                    => InvokableFactory::class,
             Compress::class                    => InvokableFactory::class,
             CompressString::class              => InvokableFactory::class,
+            CompressToArchive::class           => InvokableFactory::class,
             DataUnitFormatter::class           => InvokableFactory::class,
             DateSelect::class                  => InvokableFactory::class,
             DateTimeFormatter::class           => InvokableFactory::class,
