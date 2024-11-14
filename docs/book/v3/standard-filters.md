@@ -1125,8 +1125,7 @@ For more complex usage, read the
 
 ## RealPath
 
-This filter will resolve given links and pathnames, and returns the canonicalized
-absolute pathnames.
+This filter will resolve given links and pathnames, and returns the canonicalized absolute pathnames.
 
 ### Supported Options
 
@@ -1137,13 +1136,12 @@ The following options are supported for `Laminas\Filter\RealPath`:
 
 ### Basic Usage
 
-For any given link or pathname, its absolute path will be returned. References
-to `/./`, `/../` and extra `/` sequences in the input path will be stripped. The
-resulting path will not have any symbolic links, `/./`, or `/../` sequences.
+For any given link or pathname, its absolute path will be returned.
+References to `/./`, `/../` and extra `/` sequences in the input path will be stripped.
+The resulting path will not have any symbolic links, `/./`, or `/../` sequences.
 
-`Laminas\Filter\RealPath` will return `FALSE` on failure, e.g. if the file does not exist. On BSD
-systems `Laminas\Filter\RealPath` doesn't fail if only the last path component doesn't exist, while
-other systems will return `FALSE`.
+`Laminas\Filter\RealPath` will return the value passed to the filter on failure, e.g. if the file does not exist.
+On BSD systems `Laminas\Filter\RealPath` doesn't fail if only the last path component doesn't exist, while other systems will return the value passed to the filter.
 
 ```php
 $filter = new Laminas\Filter\RealPath();
@@ -1155,12 +1153,11 @@ $filtered = $filter->filter($path);
 
 ### Non-Existing Paths
 
-Sometimes it is useful to get paths to files that do n0t exist; e.g., when you
-want to get the real path for a path you want to create. You can then either
-provide a `FALSE` `exists` value at initiation, or use `setExists()` to set it.
+Sometimes it is useful to get paths to files that do not exist; e.g., when you want to get the real path for a path you want to create.
+You can then provide `false` for the `exists` option during construction.
 
 ```php
-$filter = new Laminas\Filter\RealPath(false);
+$filter = new Laminas\Filter\RealPath(['exists' => false]);
 $path = '/www/var/path/../../non/existing/path';
 $filtered = $filter->filter($path);
 

@@ -131,6 +131,23 @@ Additionally, `$options['pattern']` _must_ be provided at construction time or a
 
 Exceptions for invalid or empty patterns are now thrown during construct rather than when the filter is invoked.
 
+#### `RealPath`
+
+The following methods have been removed:
+
+- `setExists`
+- `getExists`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#realPath).
+
+`false` is no longer returned when the path must exist and does not.
+Instead, the original value is returned.
+Filters are not intended to provide validation.
+So, to check if the path exists, ensure a validator (such as `Laminas\Validator\File\Exists') is also used.
+
+Windows support has been dropped.
+Which in some cases may now need a custom filter to handle Windows specific issues.
+
 #### `SeparatorToCamelCase`
 
 The constructor now only accepts an associative array of [documented options](../word.md#separatorToCamelCase).
