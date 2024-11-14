@@ -24,6 +24,7 @@
     </PossiblyInvalidPropertyAssignmentValue>
     <PossiblyUnusedMethod>
       <code><![CDATA[applyFilterOnlyToStringableValuesAndStringableArrayValues]]></code>
+      <code><![CDATA[isOptions]]></code>
     </PossiblyUnusedMethod>
     <RedundantConditionGivenDocblockType>
       <code><![CDATA[is_object($options)]]></code>
@@ -536,27 +537,6 @@
       <code><![CDATA[Module]]></code>
     </UnusedClass>
   </file>
-  <file src="src/RealPath.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->options]]></code>
-      <code><![CDATA[[
-        'exists' => true,
-    ]]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$existsOrOptions]]></code>
-      <code><![CDATA[$existsOrOptions]]></code>
-    </PossiblyInvalidArgument>
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(bool) $flag]]></code>
-    </RedundantCastGivenDocblockType>
-    <RedundantConditionGivenDocblockType>
-      <code><![CDATA[$existsOrOptions !== null]]></code>
-    </RedundantConditionGivenDocblockType>
-  </file>
   <file src="src/StripTags.php">
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
@@ -828,10 +808,9 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/RealPathTest.php">
-    <InvalidArgument>
-      <code><![CDATA[['unknown']]]></code>
-    </InvalidArgument>
     <PossiblyUnusedMethod>
+      <code><![CDATA[returnExistingFilePathDataProvider]]></code>
+      <code><![CDATA[returnNonExistentPathDataProvider]]></code>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
   </file>
