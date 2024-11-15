@@ -6,6 +6,7 @@ namespace LaminasTest\Filter;
 
 use Laminas\Diactoros\UploadedFile;
 use Laminas\Filter\DecompressArchive;
+use Laminas\Filter\Exception\InvalidArgumentException;
 use LaminasTest\Filter\Compress\TmpDirectory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,17 @@ class DecompressArchiveTest extends TestCase
         $filter = new DecompressArchive(['target' => $this->target]);
 
         $target = $filter->filter($value);
+        self::assertSame($this->target, $target);
+
+        self::assertFileExists($target . DIRECTORY_SEPARATOR . $expectFile);
+    }
+
+    #[DataProvider('archiveProvider')]
+    public function testInvoke(string $value, string $expectFile): void
+    {
+        $filter = new DecompressArchive(['target' => $this->target]);
+
+        $target = $filter->__invoke($value);
         self::assertSame($this->target, $target);
 
         self::assertFileExists($target . DIRECTORY_SEPARATOR . $expectFile);
@@ -116,5 +128,11 @@ class DecompressArchiveTest extends TestCase
         $filter = new DecompressArchive(['target' => $this->target]);
 
         self::assertSame($value, $filter->filter($value));
+    }
+
+    public function testInvalidTargetIsExceptional(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new DecompressArchive(['target' => '/not-there']);
     }
 }
