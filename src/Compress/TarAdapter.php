@@ -117,7 +117,7 @@ final class TarAdapter implements FileCompressionAdapterInterface
             throw new InvalidArgumentException(sprintf('An archive does not exist at %s', $archivePath));
         }
 
-        $archive = new Archive_Tar($archivePath, $this->mode);
+        $archive = new Archive_Tar($archivePath);
 
         $result = $archive->extract($targetDirectory);
 
