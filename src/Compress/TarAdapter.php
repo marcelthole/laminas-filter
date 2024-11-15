@@ -27,7 +27,7 @@ use function strtolower;
  *     mode?: 'gz'|'bz2'|'GZ'|'BZ2'|null,
  * }
  */
-final class Tar implements FileCompressionAdapterInterface
+final class TarAdapter implements FileCompressionAdapterInterface
 {
     /** @var 'gz'|'bz2' */
     private readonly string $mode;

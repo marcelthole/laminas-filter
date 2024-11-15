@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Laminas\Filter\Compress\Bz2;
+use Laminas\Filter\Compress\Bz2Adapter;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +13,7 @@ use function array_map;
 use function extension_loaded;
 use function range;
 
-class Bz2Test extends TestCase
+class Bz2AdapterTest extends TestCase
 {
     public function setUp(): void
     {
@@ -24,7 +24,7 @@ class Bz2Test extends TestCase
 
     public function testBasicUsage(): void
     {
-        $adapter = new Bz2();
+        $adapter = new Bz2Adapter();
 
         $input      = 'Kermit the Frog';
         $compressed = $adapter->compress($input);
@@ -47,7 +47,7 @@ class Bz2Test extends TestCase
     #[DataProvider('levelProvider')]
     public function testThatDifferentCompressionLevelsWillNotAffectFunctionality(int $level): void
     {
-        $adapter = new Bz2([
+        $adapter = new Bz2Adapter([
             'blocksize' => $level,
         ]);
 
@@ -61,7 +61,7 @@ class Bz2Test extends TestCase
     public function testInvalidCompressionLevel(): void
     {
         /** @psalm-suppress InvalidArgument */
-        $adapter = new Bz2([
+        $adapter = new Bz2Adapter([
             'blocksize' => 99,
         ]);
 
@@ -72,7 +72,7 @@ class Bz2Test extends TestCase
 
     public function testDecompressingInvalidContent(): void
     {
-        $adapter = new Bz2();
+        $adapter = new Bz2Adapter();
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error during decompression: Bz Error code -5');
         $adapter->decompress('Foo');

@@ -6,7 +6,7 @@ namespace LaminasTest\Filter\Compress;
 
 use Archive_Tar;
 use InvalidArgumentException;
-use Laminas\Filter\Compress\Tar;
+use Laminas\Filter\Compress\TarAdapter;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ use function mkdir;
 use function sprintf;
 use function trim;
 
-class TarTest extends TestCase
+class TarAdapterTest extends TestCase
 {
     /** @var non-empty-string */
     private string $dir;
@@ -65,7 +65,7 @@ class TarTest extends TestCase
         self::assertFileDoesNotExist($archive);
 
         /** @psalm-suppress ArgumentTypeCoercion */
-        $adapter = new Tar(['mode' => $mode]);
+        $adapter = new TarAdapter(['mode' => $mode]);
         $adapter->compressStringToFile($archive, 'SomeFile.txt', $value);
 
         self::assertFileExists($archive);
@@ -84,7 +84,7 @@ class TarTest extends TestCase
         self::assertFileDoesNotExist($archive);
 
         /** @psalm-suppress ArgumentTypeCoercion */
-        $adapter = new Tar(['mode' => $mode]);
+        $adapter = new TarAdapter(['mode' => $mode]);
         $adapter->compressDirectoryContents($archive, $target);
         self::assertFileExists($archive);
 
@@ -108,7 +108,7 @@ class TarTest extends TestCase
         self::assertFileDoesNotExist($archive);
 
         /** @psalm-suppress ArgumentTypeCoercion */
-        $adapter = new Tar(['mode' => $mode]);
+        $adapter = new TarAdapter(['mode' => $mode]);
         $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
 
         self::assertFileExists($archive);
@@ -123,7 +123,7 @@ class TarTest extends TestCase
 
     public function testCompressFileThatDoesNotExist(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $archive = $this->dir . '/test.tar';
 
         $this->expectException(InvalidArgumentException::class);
@@ -133,7 +133,7 @@ class TarTest extends TestCase
 
     public function testCompressDirectoryThatDoesNotExist(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $archive = $this->dir . '/test.tar';
 
         $this->expectException(InvalidArgumentException::class);
@@ -143,7 +143,7 @@ class TarTest extends TestCase
 
     public function testDecompressAnArchiveThatDoesNotExist(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $archive = $this->dir . '/test.tar';
 
         $this->expectException(InvalidArgumentException::class);
@@ -163,7 +163,7 @@ class TarTest extends TestCase
 
     public function testDecompressAnArchiveToUnWritableTarget(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $archive = __DIR__ . '/fixtures/Archive.tar';
 
         $target = $this->makeReadOnlyDirectory();
@@ -181,7 +181,7 @@ class TarTest extends TestCase
 
     public function testCompressStringToUnWritableTarget(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {
@@ -196,7 +196,7 @@ class TarTest extends TestCase
 
     public function testCompressDirectoryToUnWritableTarget(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {
@@ -211,7 +211,7 @@ class TarTest extends TestCase
 
     public function testCompressFileToUnWritableTarget(): void
     {
-        $adapter = new Tar();
+        $adapter = new TarAdapter();
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {

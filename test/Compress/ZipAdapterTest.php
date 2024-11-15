@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Laminas\Filter\Compress\Zip;
+use Laminas\Filter\Compress\ZipAdapter;
 use Laminas\Filter\Exception\InvalidArgumentException;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
@@ -23,7 +23,7 @@ use function uniqid;
 use const DIRECTORY_SEPARATOR;
 use const E_WARNING;
 
-class ZipTest extends TestCase
+class ZipAdapterTest extends TestCase
 {
     /** @var non-empty-string */
     private string $tmp;
@@ -49,7 +49,7 @@ class ZipTest extends TestCase
         $expectFile = $this->tmp . '/File1.txt';
         $sourceFile = __DIR__ . '/fixtures/directory-to-compress/File1.txt';
 
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
         $adapter->compressFile($archive, $sourceFile);
@@ -71,7 +71,7 @@ class ZipTest extends TestCase
         $expectFile = $this->tmp . '/SomeFile.txt';
         $content    = 'Some Contents';
 
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
         $adapter->compressStringToFile($archive, 'SomeFile.txt', $content);
@@ -92,7 +92,7 @@ class ZipTest extends TestCase
         $archive = $this->tmp . '/archive.zip';
         $source  = __DIR__ . '/fixtures/directory-to-compress';
 
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
         $adapter->compressDirectoryContents($archive, $source);
@@ -108,7 +108,7 @@ class ZipTest extends TestCase
     public function testCompressingNonExistentDirectory(): void
     {
         $archive = $this->tmp . '/archive.zip';
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
         try {
             $adapter->compressDirectoryContents($archive, 'Not-Found');
             self::fail('An exception was expected');
@@ -129,7 +129,7 @@ class ZipTest extends TestCase
         );
 
         $archive = $this->tmp . '/archive.zip';
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
         try {
             $adapter->compressFile($archive, 'Not-Found.txt');
             self::fail('An exception was expected');
@@ -147,7 +147,7 @@ class ZipTest extends TestCase
         mkdir($dir);
         chmod($dir, 0400);
         $archive = $dir . '/archive.zip';
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
         try {
             $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
             self::fail('An exception was expected');
@@ -172,7 +172,7 @@ class ZipTest extends TestCase
         mkdir($dir);
         chmod($dir, 0400);
         $archive = $this->tmp . '/archive.zip';
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
         $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
 
         try {

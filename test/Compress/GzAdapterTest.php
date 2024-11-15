@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\Compress;
 
-use Laminas\Filter\Compress\Gz;
+use Laminas\Filter\Compress\GzAdapter;
 use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
@@ -18,7 +18,7 @@ use function sprintf;
 
 use const E_WARNING;
 
-class GzTest extends TestCase
+class GzAdapterTest extends TestCase
 {
     public function setUp(): void
     {
@@ -29,7 +29,7 @@ class GzTest extends TestCase
 
     public function testBasicUsage(): void
     {
-        $adapter = new Gz();
+        $adapter = new GzAdapter();
 
         $input        = 'Miss Piggy';
         $compressed   = $adapter->compress($input);
@@ -63,7 +63,7 @@ class GzTest extends TestCase
     #[DataProvider('modeAndLevelProvider')]
     public function testOptionsDoNotAffectBasicFunctionality(string $mode, int $level): void
     {
-        $adapter = new Gz([
+        $adapter = new GzAdapter([
             'level' => $level,
             'mode'  => $mode,
         ]);
@@ -79,7 +79,7 @@ class GzTest extends TestCase
         /** @psalm-suppress InvalidArgument */
         set_error_handler(fn (): bool|null => null, E_WARNING);
         try {
-            (new Gz())->decompress('Foo');
+            (new GzAdapter())->decompress('Foo');
         } catch (RuntimeException $e) {
             self::assertSame('Error during decompression', $e->getMessage());
         } finally {

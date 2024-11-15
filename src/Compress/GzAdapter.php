@@ -22,7 +22,7 @@ use function gzuncompress;
  *     mode?: 'deflate'|'compress',
  * }
  */
-final class Gz implements StringCompressionAdapterInterface
+final class GzAdapter implements StringCompressionAdapterInterface
 {
     /**
      * Compression level

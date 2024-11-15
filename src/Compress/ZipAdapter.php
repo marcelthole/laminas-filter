@@ -26,7 +26,7 @@ use function sys_get_temp_dir;
 
 use const DIRECTORY_SEPARATOR;
 
-final class Zip implements FileCompressionAdapterInterface
+final class ZipAdapter implements FileCompressionAdapterInterface
 {
     /**
      * @throws ExtensionNotLoadedException If zip extension not loaded.

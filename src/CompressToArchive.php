@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Laminas\Filter;
 
 use Laminas\Filter\Compress\FileCompressionAdapterInterface;
-use Laminas\Filter\Compress\Tar;
-use Laminas\Filter\Compress\Zip;
+use Laminas\Filter\Compress\TarAdapter;
+use Laminas\Filter\Compress\ZipAdapter;
 use Laminas\Filter\Exception\RuntimeException;
 use Laminas\Filter\File\FileInformation;
 
@@ -36,8 +36,8 @@ final class CompressToArchive implements FilterInterface
         if (! $adapter instanceof FileCompressionAdapterInterface) {
             $adapter ??= 'zip';
             $adapter   = match ($adapter) {
-                'zip' => new Zip(),
-                'tar' => new Tar(),
+                'zip' => new ZipAdapter(),
+                'tar' => new TarAdapter(),
             };
         }
 

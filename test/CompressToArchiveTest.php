@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LaminasTest\Filter;
 
 use Laminas\Diactoros\UploadedFile;
-use Laminas\Filter\Compress\Tar;
-use Laminas\Filter\Compress\Zip;
+use Laminas\Filter\Compress\TarAdapter;
+use Laminas\Filter\Compress\ZipAdapter;
 use Laminas\Filter\CompressToArchive;
 use Laminas\Filter\Exception\RuntimeException;
 use LaminasTest\Filter\Compress\TmpDirectory;
@@ -57,7 +57,7 @@ class CompressToArchiveTest extends TestCase
             ],
             'Zip Instance'  => [
                 [
-                    'adapter' => new Zip(),
+                    'adapter' => new ZipAdapter(),
                     'archive' => $basePath . '/archive.zip',
                 ],
             ],
@@ -69,7 +69,7 @@ class CompressToArchiveTest extends TestCase
             ],
             'Tar Instance'  => [
                 [
-                    'adapter' => new Tar(),
+                    'adapter' => new TarAdapter(),
                     'archive' => $basePath . '/archive.tar',
                 ],
             ],
@@ -144,7 +144,7 @@ class CompressToArchiveTest extends TestCase
 
     public function testArbitraryStringsWillBeCompressedInAnArchivedFile(): void
     {
-        $adapter = new Zip();
+        $adapter = new ZipAdapter();
         $options = [
             'adapter'  => $adapter,
             'archive'  => $this->tmp . '/archive.zip',
