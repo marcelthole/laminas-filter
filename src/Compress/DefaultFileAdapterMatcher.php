@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Laminas\Filter\Compress;
 
 use Laminas\Filter\Exception\RuntimeException;
+use Laminas\Filter\File\FileInformation;
 
 use function basename;
 use function pathinfo;
@@ -16,13 +17,13 @@ use const PATHINFO_EXTENSION;
 
 final class DefaultFileAdapterMatcher implements FileAdapterMatcherInterface
 {
-    public function matchFilenameExtension(string $path): FileCompressionAdapterInterface
+    public function match(FileInformation $file): FileCompressionAdapterInterface
     {
-        $path      = strtolower(basename($path));
-        $ext       = pathinfo($path, PATHINFO_EXTENSION);
-        $ext       = $ext === '' ? $path : $ext;
-        $extension = str_ends_with($path, 'tar.gz') ? 'tar' : $ext;
-        $extension = str_ends_with($path, 'tar.bz2') ? 'tar' : $extension;
+        $file      = strtolower(basename($file->path));
+        $ext       = pathinfo($file, PATHINFO_EXTENSION);
+        $ext       = $ext === '' ? $file : $ext;
+        $extension = str_ends_with($file, 'tar.gz') ? 'tar' : $ext;
+        $extension = str_ends_with($file, 'tar.bz2') ? 'tar' : $extension;
 
         return match ($extension) {
             'zip' => new ZipAdapter(),

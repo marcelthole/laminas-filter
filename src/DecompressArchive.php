@@ -48,7 +48,7 @@ final class DecompressArchive implements FilterInterface
 
         $file = FileInformation::factory($value);
         try {
-            $adapter = $this->matcher->matchFilenameExtension($file->path);
+            $adapter = $this->matcher->match($file);
         } catch (RuntimeException) {
             return $value;
         }

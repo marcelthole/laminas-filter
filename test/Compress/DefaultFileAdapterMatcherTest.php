@@ -8,6 +8,7 @@ use Laminas\Filter\Compress\DefaultFileAdapterMatcher;
 use Laminas\Filter\Compress\TarAdapter;
 use Laminas\Filter\Compress\ZipAdapter;
 use Laminas\Filter\Exception\RuntimeException;
+use Laminas\Filter\File\FileInformation;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -17,22 +18,10 @@ class DefaultFileAdapterMatcherTest extends TestCase
     public static function matchingDataProvider(): array
     {
         return [
-            ['/some/bar/baz.zip', ZipAdapter::class],
-            ['/some/bar/baz.tar', TarAdapter::class],
-            ['/some/bar/baz.tar.gz', TarAdapter::class],
-            ['/some/bar/baz.tar.bz2', TarAdapter::class],
-            ['/some/bar/baz.ZIP', ZipAdapter::class],
-            ['/some/bar/baz.TAR', TarAdapter::class],
-            ['/some/bar/baz.tar.GZ', TarAdapter::class],
-            ['/some/bar/baz.tar.BZ2', TarAdapter::class],
-            ['zip', ZipAdapter::class],
-            ['tar', TarAdapter::class],
-            ['tar.gz', TarAdapter::class],
-            ['tar.bz2', TarAdapter::class],
-            ['ZIP', ZipAdapter::class],
-            ['TaR', TarAdapter::class],
-            ['tar.GZ', TarAdapter::class],
-            ['tar.BZ2', TarAdapter::class],
+            [__DIR__ . '/fixtures/File1.zip', ZipAdapter::class],
+            [__DIR__ . '/fixtures/File1.tar.bz2', TarAdapter::class],
+            [__DIR__ . '/fixtures/File1.tar.gz', TarAdapter::class],
+            [__DIR__ . '/fixtures/File1.tar', TarAdapter::class],
         ];
     }
 
@@ -44,7 +33,7 @@ class DefaultFileAdapterMatcherTest extends TestCase
     public function testExpectedAdapterIsReturned(string $path, string $class): void
     {
         $match   = new DefaultFileAdapterMatcher();
-        $adapter = $match->matchFilenameExtension($path);
+        $adapter = $match->match(FileInformation::factory($path));
 
         self::assertInstanceOf($class, $adapter);
     }
@@ -53,9 +42,7 @@ class DefaultFileAdapterMatcherTest extends TestCase
     public static function nonMatchingDataProvider(): array
     {
         return [
-            ['/some/foo/file.txt'],
-            ['txt'],
-            ['foo.zipper'],
+            [__DIR__ . '/fixtures/directory-to-compress/File1.txt'],
         ];
     }
 
@@ -67,6 +54,6 @@ class DefaultFileAdapterMatcherTest extends TestCase
     {
         $match = new DefaultFileAdapterMatcher();
         $this->expectException(RuntimeException::class);
-        $match->matchFilenameExtension($path);
+        $match->match(FileInformation::factory($path));
     }
 }

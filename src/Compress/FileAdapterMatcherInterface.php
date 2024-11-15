@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Laminas\Filter\Compress;
 
 use Laminas\Filter\Exception\RuntimeException;
+use Laminas\Filter\File\FileInformation;
 
 interface FileAdapterMatcherInterface
 {
@@ -13,8 +14,7 @@ interface FileAdapterMatcherInterface
      *
      * Implementations should also accept just the extension, i.e. 'zip' in a case-insensitive manner
      *
-     * @param non-empty-string $path
      * @throws RuntimeException If the matcher cannot figure out which adapter to use.
      */
-    public function matchFilenameExtension(string $path): FileCompressionAdapterInterface;
+    public function match(FileInformation $file): FileCompressionAdapterInterface;
 }

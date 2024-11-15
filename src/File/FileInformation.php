@@ -17,13 +17,7 @@ use function is_string;
 
 use const FILEINFO_MIME_TYPE;
 
-/**
- * This class is not protected by any backwards compatibility guarantees
- *
- * @internal
- *
- * @psalm-internal \Laminas
- */
+/** @psalm-immutable */
 final class FileInformation
 {
     public readonly string $baseName;
