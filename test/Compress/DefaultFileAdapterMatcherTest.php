@@ -20,15 +20,19 @@ class DefaultFileAdapterMatcherTest extends TestCase
             ['/some/bar/baz.zip', ZipAdapter::class],
             ['/some/bar/baz.tar', TarAdapter::class],
             ['/some/bar/baz.tar.gz', TarAdapter::class],
+            ['/some/bar/baz.tar.bz2', TarAdapter::class],
             ['/some/bar/baz.ZIP', ZipAdapter::class],
             ['/some/bar/baz.TAR', TarAdapter::class],
             ['/some/bar/baz.tar.GZ', TarAdapter::class],
+            ['/some/bar/baz.tar.BZ2', TarAdapter::class],
             ['zip', ZipAdapter::class],
             ['tar', TarAdapter::class],
             ['tar.gz', TarAdapter::class],
+            ['tar.bz2', TarAdapter::class],
             ['ZIP', ZipAdapter::class],
             ['TaR', TarAdapter::class],
             ['tar.GZ', TarAdapter::class],
+            ['tar.BZ2', TarAdapter::class],
         ];
     }
 

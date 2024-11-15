@@ -22,6 +22,7 @@ final class DefaultFileAdapterMatcher implements FileAdapterMatcherInterface
         $ext       = pathinfo($path, PATHINFO_EXTENSION);
         $ext       = $ext === '' ? $path : $ext;
         $extension = str_ends_with($path, 'tar.gz') ? 'tar' : $ext;
+        $extension = str_ends_with($path, 'tar.bz2') ? 'tar' : $extension;
 
         return match ($extension) {
             'zip' => new ZipAdapter(),
