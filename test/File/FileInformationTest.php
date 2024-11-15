@@ -48,6 +48,7 @@ class FileInformationTest extends TestCase
         self::assertNull($file->clientMediaType);
         self::assertTrue($file->readable);
         self::assertSame('File1.txt', $file->baseName);
+        self::assertSame('text/plain', $file->detectMimeType());
     }
 
     public function testExpectedValuesForUploadedFile(): void
@@ -69,6 +70,7 @@ class FileInformationTest extends TestCase
         self::assertSame('text/plain', $file->clientMediaType);
         self::assertTrue($file->readable);
         self::assertSame('File1.txt', $file->baseName);
+        self::assertSame('text/plain', $file->detectMimeType());
     }
 
     public function testExpectedValuesForSapiFilesArray(): void
@@ -90,6 +92,7 @@ class FileInformationTest extends TestCase
         self::assertSame('text/plain', $file->clientMediaType);
         self::assertTrue($file->readable);
         self::assertSame('File1.txt', $file->baseName);
+        self::assertSame('text/plain', $file->detectMimeType());
     }
 
     public function testUnReadableFile(): void
