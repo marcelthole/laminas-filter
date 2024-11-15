@@ -1,9 +1,7 @@
 # Writing Filters
 
-`Laminas\Filter` supplies a set of commonly needed filters, but developers will
-often need to write custom filters for their particular use cases. You can do
-so by writing classes that implement `Laminas\Filter\FilterInterface`, which
-defines a single method, `filter()`.
+`Laminas\Filter` supplies a set of commonly needed filters, but developers will often need to write custom filters for their particular use cases.
+You can do so by writing classes that implement `Laminas\Filter\FilterInterface`, which defines a single method, `filter()`.
 
 ## Example
 
