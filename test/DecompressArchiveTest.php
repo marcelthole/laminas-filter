@@ -42,6 +42,8 @@ class DecompressArchiveTest extends TestCase
             [__DIR__ . '/Compress/fixtures/File1.tar.gz', 'File1.txt'],
             [__DIR__ . '/Compress/fixtures/File1.tar.bz2', 'File1.txt'],
             [__DIR__ . '/Compress/fixtures/File1.zip', 'File1.txt'],
+            [__DIR__ . '/Compress/fixtures/TarArchiveWithNoExtension', 'File1.txt'],
+            [__DIR__ . '/Compress/fixtures/ZipArchiveWithNoExtension', 'File1.txt'],
         ];
     }
 
@@ -67,9 +69,6 @@ class DecompressArchiveTest extends TestCase
         self::assertFileExists($target . DIRECTORY_SEPARATOR . $expectFile);
     }
 
-    /**
-     * This test is a little bit silly because PHP would name the uploaded file as something random
-     */
     #[DataProvider('archiveProvider')]
     public function testThatPHPFileArraysWillBeDecompressed(string $value, string $expectFile): void
     {

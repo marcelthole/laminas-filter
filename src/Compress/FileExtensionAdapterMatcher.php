@@ -15,7 +15,7 @@ use function strtolower;
 
 use const PATHINFO_EXTENSION;
 
-final class DefaultFileAdapterMatcher implements FileAdapterMatcherInterface
+final class FileExtensionAdapterMatcher implements FileAdapterMatcherInterface
 {
     public function match(FileInformation $file): FileCompressionAdapterInterface
     {
@@ -26,8 +26,8 @@ final class DefaultFileAdapterMatcher implements FileAdapterMatcherInterface
         $extension = str_ends_with($file, 'tar.bz2') ? 'tar' : $extension;
 
         return match ($extension) {
-            'zip' => new ZipAdapter(),
-            'tar' => new TarAdapter(),
+            'zip', 'zipx' => new ZipAdapter(),
+            'tar', 'tgz', 'tbz2' => new TarAdapter(),
             default => throw new RuntimeException(sprintf('Cannot handle the filename extension %s', $extension)),
         };
     }

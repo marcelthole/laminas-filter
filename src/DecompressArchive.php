@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
-use Laminas\Filter\Compress\DefaultFileAdapterMatcher;
+use Laminas\Filter\Compress\AggregateFileAdapterMatcher;
+use Laminas\Filter\Compress\FileExtensionAdapterMatcher;
 use Laminas\Filter\Compress\FileAdapterMatcherInterface;
+use Laminas\Filter\Compress\MimeTypeFileAdapterMatcher;
 use Laminas\Filter\Exception\InvalidArgumentException;
 use Laminas\Filter\Exception\RuntimeException;
 use Laminas\Filter\File\FileInformation;
@@ -37,7 +39,10 @@ final class DecompressArchive implements FilterInterface
         }
 
         $this->target  = $target;
-        $this->matcher = $options['matcher'] ?? new DefaultFileAdapterMatcher();
+        $this->matcher = $options['matcher'] ?? new AggregateFileAdapterMatcher(
+            new MimeTypeFileAdapterMatcher(),
+            new FileExtensionAdapterMatcher(),
+        );
     }
 
     public function filter(mixed $value): mixed
