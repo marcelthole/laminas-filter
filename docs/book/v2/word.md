@@ -1,7 +1,6 @@
 # Word Filters
 
-In addition to the standard set of filters, there are several classes specific
-to filtering word strings.
+In addition to the standard set of filters, there are several classes specific to filtering word strings.
 
 ## CamelCaseToDash
 
@@ -29,8 +28,8 @@ This filter modifies a given string such that `CamelCaseWords` are converted to 
 
 The following options are supported for `Laminas\Filter\Word\CamelCaseToSeparator`:
 
-- `separator`: A separator character. If this is not set, the default separator
-  is a space.
+- `separator`: A separator character.
+If this is not set, the default separator is a space.
 
 ### Basic Usage
 
@@ -74,8 +73,7 @@ The above example returns `This_Is_My_Content`.
 
 ## DashToCamelCase
 
-This filter modifies a given string such that `words-with-dashes` are converted
-to `WordsWithDashes`.
+This filter modifies a given string such that `words-with-dashes` are converted to `WordsWithDashes`.
 
 ### Supported Options
 
@@ -93,15 +91,14 @@ The above example returns `ThisIsMyContent`.
 
 ## DashToSeparator
 
-This filter modifies a given string such that `words-with-dashes` are converted
-to `words with dashes`.
+This filter modifies a given string such that `words-with-dashes` are converted to `words with dashes`.
 
 ### Supported Options
 
 The following options are supported for `Laminas\Filter\Word\DashToSeparator`:
 
-- `separator`: A separator character. If this is not set, the default separator
-  is a space.
+- `separator`: A separator character.
+If this is not set, the default separator is a space.
 
 ### Basic Usage
 
@@ -126,8 +123,7 @@ The above example returns `this is my content`.
 
 ## DashToUnderscore
 
-This filter modifies a given string such that `words-with-dashes` are converted
-to `words_with_dashes`.
+This filter modifies a given string such that `words-with-dashes` are converted to `words_with_dashes`.
 
 ### Supported Options
 
@@ -145,15 +141,14 @@ The above example returns `this_is_my_content`.
 
 ## SeparatorToCamelCase
 
-This filter modifies a given string such that `words with separators` are
-converted to `WordsWithSeparators`.
+This filter modifies a given string such that `words with separators` are converted to `WordsWithSeparators`.
 
 ### Supported Options
 
 The following options are supported for `Laminas\Filter\Word\SeparatorToCamelCase`:
 
-- `separator`: A separator character. If this is not set, the default separator
-  is a space.
+- `separator`: A separator character.
+If this is not set, the default separator is a space.
 
 ### Basic Usage
 
@@ -178,15 +173,14 @@ The above example returns `ThisIsMyContent`.
 
 ## SeparatorToDash
 
-This filter modifies a given string such that `words with separators` are
-converted to `words-with-separators`.
+This filter modifies a given string such that `words with separators` are converted to `words-with-separators`.
 
 ### Supported Options
 
 The following options are supported for `Laminas\Filter\Word\SeparatorToDash`:
 
-- `separator`: A separator character. If this is not set, the default separator
-  is a space.
+- `separator`: A separator character.
+If this is not set, the default separator is a space.
 
 ### Basic Usage
 
@@ -211,17 +205,16 @@ The above example returns `this-is-my-content`.
 
 ## SeparatorToSeparator
 
-This filter modifies a given string such that `words with separators` are
-converted to `words-with-separators`.
+This filter modifies a given string such that `words with separators` are converted to `words-with-separators`.
 
 ### Supported Options
 
 The following options are supported for `Laminas\Filter\Word\SeparatorToSeparator`:
 
-- `searchSeparator`: The search separator character. If this is not set, the
-  default separator is a space.
-- `replaceSeparator`: The replacement separator character. If this is not set, the
-  default separator is a dash (`-`).
+- `searchSeparator`: The search separator character.
+If this is not set, the default separator is a space.
+- `replaceSeparator`: The replacement separator character.
+If this is not set, the default separator is a dash (`-`).
 
 ### Basic Usage
 
@@ -245,8 +238,7 @@ The above example returns `this-is-my-content`.
 
 ## UnderscoreToCamelCase
 
-This filter modifies a given string such that `words_with_underscores` are
-converted to `WordsWithUnderscores`.
+This filter modifies a given string such that `words_with_underscores` are converted to `WordsWithUnderscores`.
 
 ### Supported Options
 
@@ -264,15 +256,14 @@ The above example returns `ThisIsMyContent`.
 
 ## UnderscoreToSeparator
 
-This filter modifies a given string such that `words_with_underscores` are
-converted to `words with underscores`.
+This filter modifies a given string such that `words_with_underscores` are converted to `words with underscores`.
 
 ### Supported Options
 
 The following options are supported for `Laminas\Filter\Word\UnderscoreToSeparator`:
 
-- `separator`: A separator character. If this is not set, the default separator
-  is a space.
+- `separator`: A separator character.
+If this is not set, the default separator is a space.
 
 ### Basic Usage
 
@@ -297,8 +288,7 @@ The above example returns `this is my content`.
 
 ## UnderscoreToDash
 
-This filter modifies a given string such that `words_with_underscores` are
-converted to `words-with-underscores`.
+This filter modifies a given string such that `words_with_underscores` are converted to `words-with-underscores`.
 
 ### Supported Options
 

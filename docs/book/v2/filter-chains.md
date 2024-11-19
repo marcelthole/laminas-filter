@@ -1,12 +1,10 @@
 # Filter Chains
 
 Often, multiple filters should be applied to some value in a particular order.
-For example, a login form accepts a username that should be lowercase and
-contain only alphabetic characters.
+For example, a login form accepts a username that should be lowercase and contain only alphabetic characters.
 
-`Laminas\Filter\FilterChain` provides a simple method by which filters may be
-chained together. The following code illustrates how to chain together two
-filters for the submitted username and fulfill the above requirements:
+`Laminas\Filter\FilterChain` provides a simple method by which filters may be chained together.
+The following code illustrates how to chain together two filters for the submitted username and fulfill the above requirements:
 
 ```php
 // Create a filter chain and add filters to the chain
@@ -19,21 +17,18 @@ $filterChain
 $username = $filterChain->filter($_POST['username']);
 ```
 
-Filters are run in the order they are added to the filter chain. In the above
-example, the username is first removed of any non-alphabetic characters, and
-then any uppercase characters are converted to lowercase.
+Filters are run in the order they are added to the filter chain.
+In the above example, the username is first removed of any non-alphabetic characters, and then any uppercase characters are converted to lowercase.
 
-Any object that implements `Laminas\Filter\FilterInterface` may be used in a
-filter chain.
+Any object that implements `Laminas\Filter\FilterInterface` may be used in a filter chain.
 
 ## Setting Filter Chain Order
 
-For each filter added to the `FilterChain`, you can set a priority to define
-the chain order. Higher values indicate higher priority (execute first), while
-lower and/or negative values indicate lower priority (execute last). The default value is `1000`.
+For each filter added to the `FilterChain`, you can set a priority to define the chain order.
+Higher values indicate higher priority (execute first), while lower and/or negative values indicate lower priority (execute last).
+The default value is `1000`.
 
-In the following example, any uppercase characters are converted to lowercase
-before any non-alphabetic characters are removed.
+In the following example, any uppercase characters are converted to lowercase before any non-alphabetic characters are removed.
 
 ```php
 // Create a filter chain and add filters to the chain
@@ -45,13 +40,13 @@ $filterChain
 
 ## Using the Plugin Manager
 
-A `FilterPluginManager` is attached to every `FilterChain` instance. Every filter
-that is used in a `FilterChain` must be known to the `FilterPluginManager`.
+A `FilterPluginManager` is attached to every `FilterChain` instance.
+Every filter that is used in a `FilterChain` must be known to the `FilterPluginManager`.
 
-To add a filter to the `FilterChain`, use the `attachByName()` method. The
-first parameter is the name of the filter within the `FilterPluginManager`. The
-second parameter takes any options for creating the filter instance. The third
-parameter is the priority.
+To add a filter to the `FilterChain`, use the `attachByName()` method.
+The first parameter is the name of the filter within the `FilterPluginManager`.
+The second parameter takes any options for creating the filter instance.
+The third parameter is the priority.
 
 ```php
 // Create a filter chain and add filters to the chain
