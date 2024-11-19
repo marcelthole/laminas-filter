@@ -17,7 +17,6 @@ use function is_string;
 
 use const FILEINFO_MIME_TYPE;
 
-/** @psalm-immutable */
 final class FileInformation
 {
     public readonly string $baseName;
