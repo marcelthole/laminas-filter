@@ -26,7 +26,7 @@ use function sys_get_temp_dir;
 
 use const DIRECTORY_SEPARATOR;
 
-final class ZipAdapter implements FileCompressionAdapterInterface
+final class ZipAdapter implements ArchiveAdapterInterface
 {
     /**
      * @throws ExtensionNotLoadedException If zip extension not loaded.
@@ -38,7 +38,7 @@ final class ZipAdapter implements FileCompressionAdapterInterface
         }
     }
 
-    public function compressFile(string $archivePath, string $filePath): void
+    public function archiveFile(string $archivePath, string $filePath): void
     {
         $zip = $this->openArchive($archivePath);
 
@@ -53,7 +53,7 @@ final class ZipAdapter implements FileCompressionAdapterInterface
         $zip->close();
     }
 
-    public function compressStringToFile(string $archivePath, string $fileName, string $fileContents): void
+    public function archiveStringToFile(string $archivePath, string $fileName, string $fileContents): void
     {
         $filePath = sprintf('%s%s%s', sys_get_temp_dir(), DIRECTORY_SEPARATOR, basename($fileName));
         $result   = file_put_contents($filePath, $fileContents);
@@ -61,10 +61,10 @@ final class ZipAdapter implements FileCompressionAdapterInterface
             throw new RuntimeException('Failed to write contents to a temporary file');
         }
 
-        $this->compressFile($archivePath, $filePath);
+        $this->archiveFile($archivePath, $filePath);
     }
 
-    public function compressDirectoryContents(string $archivePath, string $directory): void
+    public function archiveDirectoryContents(string $archivePath, string $directory): void
     {
         if (! is_dir($directory)) {
             throw new InvalidArgumentException('The directory argument is not a directory');
@@ -107,7 +107,7 @@ final class ZipAdapter implements FileCompressionAdapterInterface
         $zip->close();
     }
 
-    public function decompressArchive(string $archivePath, string $targetDirectory): void
+    public function expandArchive(string $archivePath, string $targetDirectory): void
     {
         $zip = new ZipArchive();
         $zip->open($archivePath);

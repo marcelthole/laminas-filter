@@ -52,11 +52,11 @@ class ZipAdapterTest extends TestCase
         $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
-        $adapter->compressFile($archive, $sourceFile);
+        $adapter->archiveFile($archive, $sourceFile);
         self::assertFileExists($archive);
 
         self::assertFileDoesNotExist($expectFile);
-        $adapter->decompressArchive($archive, $this->tmp);
+        $adapter->expandArchive($archive, $this->tmp);
         self::assertFileExists($expectFile);
 
         self::assertSame(
@@ -74,11 +74,11 @@ class ZipAdapterTest extends TestCase
         $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
-        $adapter->compressStringToFile($archive, 'SomeFile.txt', $content);
+        $adapter->archiveStringToFile($archive, 'SomeFile.txt', $content);
         self::assertFileExists($archive);
 
         self::assertFileDoesNotExist($expectFile);
-        $adapter->decompressArchive($archive, $this->tmp);
+        $adapter->expandArchive($archive, $this->tmp);
         self::assertFileExists($expectFile);
 
         self::assertSame(
@@ -95,10 +95,10 @@ class ZipAdapterTest extends TestCase
         $adapter = new ZipAdapter();
 
         self::assertFileDoesNotExist($archive);
-        $adapter->compressDirectoryContents($archive, $source);
+        $adapter->archiveDirectoryContents($archive, $source);
         self::assertFileExists($archive);
 
-        $adapter->decompressArchive($archive, $this->tmp);
+        $adapter->expandArchive($archive, $this->tmp);
 
         self::assertFileExists($this->tmp . '/File1.txt');
         self::assertFileExists($this->tmp . '/File2.txt');
@@ -110,7 +110,7 @@ class ZipAdapterTest extends TestCase
         $archive = $this->tmp . '/archive.zip';
         $adapter = new ZipAdapter();
         try {
-            $adapter->compressDirectoryContents($archive, 'Not-Found');
+            $adapter->archiveDirectoryContents($archive, 'Not-Found');
             self::fail('An exception was expected');
         } catch (InvalidArgumentException $e) {
             self::assertSame('The directory argument is not a directory', $e->getMessage());
@@ -131,7 +131,7 @@ class ZipAdapterTest extends TestCase
         $archive = $this->tmp . '/archive.zip';
         $adapter = new ZipAdapter();
         try {
-            $adapter->compressFile($archive, 'Not-Found.txt');
+            $adapter->archiveFile($archive, 'Not-Found.txt');
             self::fail('An exception was expected');
         } catch (RuntimeException $e) {
             self::assertSame('Failed to add the file Not-Found.txt to the archive', $e->getMessage());
@@ -149,7 +149,7 @@ class ZipAdapterTest extends TestCase
         $archive = $dir . '/archive.zip';
         $adapter = new ZipAdapter();
         try {
-            $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+            $adapter->archiveFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
             self::fail('An exception was expected');
         } catch (RuntimeException $e) {
             self::assertStringContainsString('The archive could not be opened', $e->getMessage());
@@ -173,10 +173,10 @@ class ZipAdapterTest extends TestCase
         chmod($dir, 0400);
         $archive = $this->tmp . '/archive.zip';
         $adapter = new ZipAdapter();
-        $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+        $adapter->archiveFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
 
         try {
-            $adapter->decompressArchive($archive, $dir);
+            $adapter->expandArchive($archive, $dir);
             self::fail('An exception was expected');
         } catch (RuntimeException $e) {
             self::assertStringContainsString('Failed to extract archive to the target directory', $e->getMessage());

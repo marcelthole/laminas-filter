@@ -154,7 +154,7 @@ class CompressToArchiveTest extends TestCase
         $archive = $filter->filter('Some Text');
         self::assertFileExists($archive);
 
-        $adapter->decompressArchive($archive, $this->tmp);
+        $adapter->expandArchive($archive, $this->tmp);
         $expectFile = $this->tmp . '/File.txt';
         self::assertFileExists($expectFile);
         self::assertSame('Some Text', file_get_contents($expectFile));

@@ -15,9 +15,9 @@ use function strtolower;
 
 use const PATHINFO_EXTENSION;
 
-final class FileExtensionAdapterMatcher implements FileAdapterMatcherInterface
+final class FileExtensionArchiveAdapterResolver implements ArchiveAdapterResolverInterface
 {
-    public function match(FileInformation $file): FileCompressionAdapterInterface
+    public function resolve(FileInformation $file): ArchiveAdapterInterface
     {
         $file      = strtolower(basename($file->path));
         $ext       = pathinfo($file, PATHINFO_EXTENSION);

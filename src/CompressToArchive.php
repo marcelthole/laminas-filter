@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
-use Laminas\Filter\Compress\FileCompressionAdapterInterface;
+use Laminas\Filter\Compress\ArchiveAdapterInterface;
 use Laminas\Filter\Compress\TarAdapter;
 use Laminas\Filter\Compress\ZipAdapter;
 use Laminas\Filter\Exception\RuntimeException;
@@ -16,14 +16,14 @@ use function is_string;
 /**
  * @psalm-type Options = array{
  *     archive: non-empty-string,
- *     adapter?: FileCompressionAdapterInterface|'zip'|'tar'|null,
+ *     adapter?: ArchiveAdapterInterface|'zip'|'tar'|null,
  *     fileName?: non-empty-string|null,
  * }
  * @implements FilterInterface<non-empty-string>
  */
 final class CompressToArchive implements FilterInterface
 {
-    private readonly FileCompressionAdapterInterface $adapter;
+    private readonly ArchiveAdapterInterface $adapter;
     /** @var non-empty-string */
     private readonly string $archive;
     /** @var non-empty-string|null */
@@ -33,7 +33,7 @@ final class CompressToArchive implements FilterInterface
     public function __construct(array $options)
     {
         $adapter = $options['adapter'] ?? null;
-        if (! $adapter instanceof FileCompressionAdapterInterface) {
+        if (! $adapter instanceof ArchiveAdapterInterface) {
             $adapter ??= 'zip';
             $adapter   = match ($adapter) {
                 'zip' => new ZipAdapter(),
@@ -65,7 +65,7 @@ final class CompressToArchive implements FilterInterface
     {
         if (is_string($value) && $value !== '' && is_dir($value)) {
             /** @psalm-var non-empty-string $value This is required for now. Psalm cannot seem to infer the type here. */
-            $this->adapter->compressDirectoryContents($this->archive, $value);
+            $this->adapter->archiveDirectoryContents($this->archive, $value);
 
             return $this->archive;
         }
@@ -73,7 +73,7 @@ final class CompressToArchive implements FilterInterface
         if (FileInformation::isPossibleFile($value)) {
             $file = FileInformation::factory($value);
 
-            $this->adapter->compressFile($this->archive, $file->path);
+            $this->adapter->archiveFile($this->archive, $file->path);
 
             return $this->archive;
         }
@@ -86,7 +86,7 @@ final class CompressToArchive implements FilterInterface
             throw new RuntimeException('The `fileName` option must be present when compressing arbitrary strings');
         }
 
-        $this->adapter->compressStringToFile($this->archive, $this->fileName, $value);
+        $this->adapter->archiveStringToFile($this->archive, $this->fileName, $value);
 
         return $this->archive;
     }

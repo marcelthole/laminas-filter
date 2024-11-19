@@ -66,11 +66,11 @@ class TarAdapterTest extends TestCase
 
         /** @psalm-suppress ArgumentTypeCoercion */
         $adapter = new TarAdapter(['mode' => $mode]);
-        $adapter->compressStringToFile($archive, 'SomeFile.txt', $value);
+        $adapter->archiveStringToFile($archive, 'SomeFile.txt', $value);
 
         self::assertFileExists($archive);
 
-        $adapter->decompressArchive($archive, $this->dir);
+        $adapter->expandArchive($archive, $this->dir);
 
         self::assertFileExists($expectFile);
         self::assertSame($value, file_get_contents($expectFile));
@@ -85,10 +85,10 @@ class TarAdapterTest extends TestCase
 
         /** @psalm-suppress ArgumentTypeCoercion */
         $adapter = new TarAdapter(['mode' => $mode]);
-        $adapter->compressDirectoryContents($archive, $target);
+        $adapter->archiveDirectoryContents($archive, $target);
         self::assertFileExists($archive);
 
-        $adapter->decompressArchive($archive, $this->dir);
+        $adapter->expandArchive($archive, $this->dir);
 
         $expect = [
             $this->dir . '/File1.txt',
@@ -109,11 +109,11 @@ class TarAdapterTest extends TestCase
 
         /** @psalm-suppress ArgumentTypeCoercion */
         $adapter = new TarAdapter(['mode' => $mode]);
-        $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+        $adapter->archiveFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
 
         self::assertFileExists($archive);
 
-        $adapter->decompressArchive($archive, $this->dir);
+        $adapter->expandArchive($archive, $this->dir);
 
         $expectFile = $this->dir . '/File1.txt';
 
@@ -128,7 +128,7 @@ class TarAdapterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        $adapter->compressFile($archive, __DIR__ . '/not-there.txt');
+        $adapter->archiveFile($archive, __DIR__ . '/not-there.txt');
     }
 
     public function testCompressDirectoryThatDoesNotExist(): void
@@ -138,7 +138,7 @@ class TarAdapterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        $adapter->compressDirectoryContents($archive, __DIR__ . '/not-there');
+        $adapter->archiveDirectoryContents($archive, __DIR__ . '/not-there');
     }
 
     public function testDecompressAnArchiveThatDoesNotExist(): void
@@ -148,7 +148,7 @@ class TarAdapterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
 
-        $adapter->decompressArchive($archive, $this->dir);
+        $adapter->expandArchive($archive, $this->dir);
     }
 
     /** @return non-empty-string */
@@ -169,7 +169,7 @@ class TarAdapterTest extends TestCase
         $target = $this->makeReadOnlyDirectory();
 
         try {
-            $adapter->decompressArchive($archive, $target);
+            $adapter->expandArchive($archive, $target);
 
             self::fail('An exception was not thrown');
         } catch (RuntimeException $e) {
@@ -185,7 +185,7 @@ class TarAdapterTest extends TestCase
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {
-            $adapter->compressStringToFile($archive, 'Foo.txt', 'Foo');
+            $adapter->archiveStringToFile($archive, 'Foo.txt', 'Foo');
             self::fail('An exception was not thrown');
         } catch (RuntimeException $e) {
             self::assertSame('Error creating the Tar archive', $e->getMessage());
@@ -200,7 +200,7 @@ class TarAdapterTest extends TestCase
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {
-            $adapter->compressDirectoryContents($archive, __DIR__ . '/fixtures/directory-to-compress');
+            $adapter->archiveDirectoryContents($archive, __DIR__ . '/fixtures/directory-to-compress');
             self::fail('An exception was not thrown');
         } catch (RuntimeException $e) {
             self::assertSame('Error creating the Tar archive', $e->getMessage());
@@ -215,7 +215,7 @@ class TarAdapterTest extends TestCase
         $dir     = $this->makeReadOnlyDirectory();
         $archive = sprintf('%s/Test.tar', $dir);
         try {
-            $adapter->compressFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
+            $adapter->archiveFile($archive, __DIR__ . '/fixtures/directory-to-compress/File1.txt');
             self::fail('An exception was not thrown');
         } catch (RuntimeException $e) {
             self::assertSame('Error creating the Tar archive', $e->getMessage());

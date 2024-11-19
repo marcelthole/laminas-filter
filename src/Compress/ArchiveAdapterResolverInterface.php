@@ -7,7 +7,7 @@ namespace Laminas\Filter\Compress;
 use Laminas\Filter\Exception\RuntimeException;
 use Laminas\Filter\File\FileInformation;
 
-interface FileAdapterMatcherInterface
+interface ArchiveAdapterResolverInterface
 {
     /**
      * Return an adapter instance based on the filename extension of the given file path
@@ -16,5 +16,5 @@ interface FileAdapterMatcherInterface
      *
      * @throws RuntimeException If the matcher cannot figure out which adapter to use.
      */
-    public function match(FileInformation $file): FileCompressionAdapterInterface;
+    public function resolve(FileInformation $file): ArchiveAdapterInterface;
 }

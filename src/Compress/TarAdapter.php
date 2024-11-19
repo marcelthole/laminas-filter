@@ -27,7 +27,7 @@ use function strtolower;
  *     mode?: 'gz'|'bz2'|'GZ'|'BZ2'|null,
  * }
  */
-final class TarAdapter implements FileCompressionAdapterInterface
+final class TarAdapter implements ArchiveAdapterInterface
 {
     /** @var 'gz'|'bz2' */
     private readonly string $mode;
@@ -58,7 +58,7 @@ final class TarAdapter implements FileCompressionAdapterInterface
         }
     }
 
-    public function compressFile(string $archivePath, string $filePath): void
+    public function archiveFile(string $archivePath, string $filePath): void
     {
         if (! file_exists($filePath)) {
             throw new InvalidArgumentException(sprintf('The file %s does not exist', $filePath));
@@ -71,7 +71,7 @@ final class TarAdapter implements FileCompressionAdapterInterface
         }
     }
 
-    public function compressDirectoryContents(string $archivePath, string $directory): void
+    public function archiveDirectoryContents(string $archivePath, string $directory): void
     {
         if (! is_dir($directory)) {
             throw new InvalidArgumentException('The directory argument is not a directory');
@@ -102,7 +102,7 @@ final class TarAdapter implements FileCompressionAdapterInterface
         }
     }
 
-    public function compressStringToFile(string $archivePath, string $fileName, string $fileContents): void
+    public function archiveStringToFile(string $archivePath, string $fileName, string $fileContents): void
     {
         $archive = new Archive_Tar($archivePath, $this->mode);
         $result  = $archive->addString($fileName, $fileContents);
@@ -111,7 +111,7 @@ final class TarAdapter implements FileCompressionAdapterInterface
         }
     }
 
-    public function decompressArchive(string $archivePath, string $targetDirectory): void
+    public function expandArchive(string $archivePath, string $targetDirectory): void
     {
         if (! file_exists($archivePath)) {
             throw new InvalidArgumentException(sprintf('An archive does not exist at %s', $archivePath));

@@ -10,21 +10,21 @@ use Laminas\Filter\File\FileInformation;
 use function array_values;
 use function sprintf;
 
-final class AggregateFileAdapterMatcher implements FileAdapterMatcherInterface
+final class AggregateArchiveAdapterResolver implements ArchiveAdapterResolverInterface
 {
-    /** @var list<FileAdapterMatcherInterface> */
+    /** @var list<ArchiveAdapterResolverInterface> */
     private readonly array $matchers;
 
-    public function __construct(FileAdapterMatcherInterface ...$matchers)
+    public function __construct(ArchiveAdapterResolverInterface ...$matchers)
     {
         $this->matchers = array_values($matchers);
     }
 
-    public function match(FileInformation $file): FileCompressionAdapterInterface
+    public function resolve(FileInformation $file): ArchiveAdapterInterface
     {
         foreach ($this->matchers as $matcher) {
             try {
-                return $matcher->match($file);
+                return $matcher->resolve($file);
             } catch (RuntimeException) {
             }
         }

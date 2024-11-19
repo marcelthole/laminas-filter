@@ -9,9 +9,9 @@ use Laminas\Filter\File\FileInformation;
 
 use function sprintf;
 
-final class MimeTypeFileAdapterMatcher implements FileAdapterMatcherInterface
+final class MimeTypeArchiveAdapterResolver implements ArchiveAdapterResolverInterface
 {
-    public function match(FileInformation $file): FileCompressionAdapterInterface
+    public function resolve(FileInformation $file): ArchiveAdapterInterface
     {
         $type = $file->detectMimeType();
 

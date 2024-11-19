@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
-use Laminas\Filter\Compress\AggregateFileAdapterMatcher;
-use Laminas\Filter\Compress\FileAdapterMatcherInterface;
-use Laminas\Filter\Compress\FileExtensionAdapterMatcher;
-use Laminas\Filter\Compress\MimeTypeFileAdapterMatcher;
+use Laminas\Filter\Compress\AggregateArchiveAdapterResolver;
+use Laminas\Filter\Compress\ArchiveAdapterResolverInterface;
+use Laminas\Filter\Compress\FileExtensionArchiveAdapterResolver;
+use Laminas\Filter\Compress\MimeTypeArchiveAdapterResolver;
 use Laminas\Filter\Exception\InvalidArgumentException;
 use Laminas\Filter\Exception\RuntimeException;
 use Laminas\Filter\File\FileInformation;
@@ -18,7 +18,7 @@ use function is_writable;
 /**
  * @psalm-type Options = array{
  *     target: non-empty-string,
- *     matcher?: FileAdapterMatcherInterface,
+ *     matcher?: ArchiveAdapterResolverInterface,
  * }
  * @implements FilterInterface<non-empty-string>
  */
@@ -26,7 +26,7 @@ final class DecompressArchive implements FilterInterface
 {
     /** @var non-empty-string */
     private readonly string $target;
-    private FileAdapterMatcherInterface $matcher;
+    private ArchiveAdapterResolverInterface $matcher;
 
     /** @param Options $options */
     public function __construct(array $options)
@@ -39,9 +39,9 @@ final class DecompressArchive implements FilterInterface
         }
 
         $this->target  = $target;
-        $this->matcher = $options['matcher'] ?? new AggregateFileAdapterMatcher(
-            new MimeTypeFileAdapterMatcher(),
-            new FileExtensionAdapterMatcher(),
+        $this->matcher = $options['matcher'] ?? new AggregateArchiveAdapterResolver(
+            new MimeTypeArchiveAdapterResolver(),
+            new FileExtensionArchiveAdapterResolver(),
         );
     }
 
@@ -53,12 +53,12 @@ final class DecompressArchive implements FilterInterface
 
         $file = FileInformation::factory($value);
         try {
-            $adapter = $this->matcher->match($file);
+            $adapter = $this->matcher->resolve($file);
         } catch (RuntimeException) {
             return $value;
         }
 
-        $adapter->decompressArchive($file->path, $this->target);
+        $adapter->expandArchive($file->path, $this->target);
 
         return $this->target;
     }
