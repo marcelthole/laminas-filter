@@ -383,46 +383,6 @@
       <code><![CDATA[$matches[2]]]></code>
     </MixedArrayAccess>
   </file>
-  <file src="test/AllowListTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[defaultTestProvider]]></code>
-      <code><![CDATA[listTestProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/BaseNameTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/CallbackTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[callbackProvider]]></code>
-      <code><![CDATA[callbackWithArgumentsProvider]]></code>
-      <code><![CDATA[staticMethodTest]]></code>
-      <code><![CDATA[staticMethodWithArgumentsTest]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DataUnitFormatterTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[binaryBytesTestProvider]]></code>
-      <code><![CDATA[decimalBytesTestProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DateSelectTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[provideFilter]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DateTimeFormatterTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DateTimeSelectTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[provideFilter]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="test/DenyListTest.php">
     <MixedArrayAccess>
       <code><![CDATA[$expected]]></code>
@@ -432,34 +392,12 @@
       <code><![CDATA[$data]]></code>
       <code><![CDATA[[$value, $expected]]]></code>
     </MixedAssignment>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[defaultTestProvider]]></code>
-      <code><![CDATA[listTestProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DigitsTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[basicDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/DirTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/File/LowerCaseTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="test/File/RenameTest.php">
     <InvalidArgument>
       <code><![CDATA[1234]]></code>
       <code><![CDATA[1234]]></code>
     </InvalidArgument>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="test/File/RenameUploadTest.php">
     <InvalidArgument>
@@ -475,19 +413,6 @@
     <MixedAssignment>
       <code><![CDATA[$firstResult]]></code>
     </MixedAssignment>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/File/UpperCaseTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/FilterChainTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[staticUcaseFilter]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="test/FilterPluginManagerCompatibilityTest.php">
     <DeprecatedMethod>
@@ -499,17 +424,6 @@
       <code><![CDATA[setInvokableClass]]></code>
       <code><![CDATA[setService]]></code>
     </DeprecatedMethod>
-  </file>
-  <file src="test/ForceUriSchemeTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[badSchemeProvider]]></code>
-      <code><![CDATA[filterDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/HtmlEntitiesTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="test/InflectorTest.php">
     <DocblockTypeContradiction>
@@ -562,60 +476,6 @@
       <code><![CDATA[$target]]></code>
     </UnusedVariable>
   </file>
-  <file src="test/MonthSelectTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[provideFilter]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/PregReplaceTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[invalidPatternOptions]]></code>
-      <code><![CDATA[returnNonStringScalarValues]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/RealPathTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnExistingFilePathDataProvider]]></code>
-      <code><![CDATA[returnNonExistentPathDataProvider]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/ScalarOrArrayFilterCallbackTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[scalarProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StringPrefixTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[basicDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StringSuffixTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[basicDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StringToLowerTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StringToUpperTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StringTrimTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[defaultBehaviourDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/StripNewlinesTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[basicDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="test/StripTagsTest.php">
     <MixedArgument>
       <code><![CDATA[$filtered]]></code>
@@ -623,69 +483,5 @@
     <MixedAssignment>
       <code><![CDATA[$filtered]]></code>
     </MixedAssignment>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[badCommentProvider]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/ToFloatTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[filterableValuesProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/ToIntTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[basicDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/ToNullTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[combinedTypeTestProvider]]></code>
-      <code><![CDATA[defaultTestProvider]]></code>
-      <code><![CDATA[duplicateTypeProvider]]></code>
-      <code><![CDATA[invalidTypeProvider]]></code>
-      <code><![CDATA[typeTestProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/ToStringTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnBasicDataProvider]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/UpperCaseWordsTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/CamelCaseToSeparatorTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[camelCasedWordsProvider]]></code>
-      <code><![CDATA[returnNonStringScalarValues]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/CamelCaseToUnderscoreTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[camelCasedWordsProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/DashToSeparatorTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnNonStringScalarValues]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/SeparatorToCamelCaseTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnNonStringScalarValues]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="test/Word/SeparatorToSeparatorTest.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[returnNonStringScalarValues]]></code>
-      <code><![CDATA[returnUnfilteredDataProvider]]></code>
-    </PossiblyUnusedMethod>
   </file>
 </files>
