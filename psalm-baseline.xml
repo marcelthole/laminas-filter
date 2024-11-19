@@ -24,6 +24,7 @@
     </PossiblyInvalidPropertyAssignmentValue>
     <PossiblyUnusedMethod>
       <code><![CDATA[applyFilterOnlyToStringableValuesAndStringableArrayValues]]></code>
+      <code><![CDATA[getOptions]]></code>
       <code><![CDATA[isOptions]]></code>
     </PossiblyUnusedMethod>
     <RedundantConditionGivenDocblockType>
