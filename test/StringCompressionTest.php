@@ -7,6 +7,7 @@ namespace LaminasTest\Filter;
 use Laminas\Filter\Compress\StringCompressionAdapterInterface;
 use Laminas\Filter\CompressString;
 use Laminas\Filter\DecompressString;
+use Laminas\Filter\Exception\RuntimeException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -108,5 +109,24 @@ class StringCompressionTest extends TestCase
 
         self::assertSame($input, $compress->filter($input));
         self::assertSame($input, $decompress->filter($input));
+    }
+
+    public function testMismatchedAdaptersCausesException(): void
+    {
+        $compress = new CompressString([
+            'adapter' => 'gz',
+        ]);
+
+        $decompress = new DecompressString([
+            'adapter' => 'bz2',
+        ]);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Error during decompression');
+        $decompress->filter(
+            $compress->filter(
+                'Something',
+            ),
+        );
     }
 }
