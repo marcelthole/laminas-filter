@@ -58,7 +58,7 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
-The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToDash).
+The constructor now only accepts an associative array of [documented options](../word.md#camelcasetodash).
 
 The filter will now treat numbers as a word boundary.
 For example `ThisHas4Words` will filter to `This-Has-4-Words`
@@ -73,7 +73,7 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
-The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToSeparator).
+The constructor now only accepts an associative array of [documented options](../word.md#camelcasetoseparator).
 
 The filter will now treat numbers as a word boundary.
 For example `ThisHas4Words` with the default separator will filter to `This Has 4 Words`
@@ -88,7 +88,7 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
-The constructor now only accepts an associative array of [documented options](../word.md#camelCaseToUnderscore).
+The constructor now only accepts an associative array of [documented options](../word.md#camelcasetounderscore).
 
 The filter will now treat numbers as a word boundary.
 For example `ThisHas4Words` will filter to `This_Has_4_Words`
@@ -103,7 +103,7 @@ The following methods have been removed:
 - `setSeparator`
 - `getSeparator`
 
-The constructor now only accepts an associative array of [documented options](../word.md#dashToSeparator).
+The constructor now only accepts an associative array of [documented options](../word.md#dashtoseparator).
 
 #### `DenyList`
 
@@ -138,7 +138,7 @@ The following methods have been removed:
 - `setExists`
 - `getExists`
 
-The constructor now only accepts an associative array of [documented options](../standard-filters.md#realPath).
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#realpath).
 
 `false` is no longer returned when the path must exist and does not.
 Instead, the original value is returned.
@@ -150,11 +150,11 @@ Which in some cases may now need a custom filter to handle Windows specific issu
 
 #### `SeparatorToCamelCase`
 
-The constructor now only accepts an associative array of [documented options](../word.md#separatorToCamelCase).
+The constructor now only accepts an associative array of [documented options](../word.md#separatortocamelcase).
 
 #### `SeparatorToDash`
 
-The constructor now only accepts an associative array of [documented options](../word.md#separatorToDash).
+The constructor now only accepts an associative array of [documented options](../word.md#separatortodash).
 
 #### `SeparatorToSeparator`
 
@@ -165,7 +165,7 @@ The following methods have been removed:
 - `setReplacementSeparator`
 - `getReplacementSeparator`
 
-The constructor now only accepts an associative array of [documented options](../word.md#separatorToSeparator).
+The constructor now only accepts an associative array of [documented options](../word.md#separatortoseparator).
 
 #### `StringPrefix`
 
@@ -215,7 +215,7 @@ The constructor now only accepts an associative array of [documented options](..
 
 #### `UnderscoreToSeparator`
 
-The constructor now only accepts an associative array of [documented options](../standard-filters.md#underscoreToSeparator).
+The constructor now only accepts an associative array of [documented options](../word.md#underscoretoseparator).
 
 ## Removed Filters
 
