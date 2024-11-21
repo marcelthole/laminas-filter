@@ -50,7 +50,7 @@ $filter->setKey('--our-super-secret-key--');
 $filter->filter($files['my-upload']);
 ```
 
-Check the [Encrypt and Decrypt filter documentation](/laminas-filter/standard-filters/#encrypt-and-decrypt)
+Check the [Encrypt and Decrypt filter documentation](standard-filters.md#encrypt-and-decrypt)
 for more information about options and adapters.
 
 ## Lowercase
@@ -125,7 +125,7 @@ $filter->filter($files['my-upload']);
 ```
 
 The `LowerCase` filter extends from the `StringToLower` filter; read the
-[`StringToLower` documentation](/laminas-filter/standard-filters/#stringtolower)
+[`StringToLower` documentation](standard-filters.md#stringtolower)
 for more information about encoding and its exceptions.
 
 ## Rename

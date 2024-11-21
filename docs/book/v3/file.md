@@ -78,7 +78,7 @@ $filter->filter($files['my-upload']);
 ```
 
 The `LowerCase` filter extends from the `StringToLower` filter; read the
-[`StringToLower` documentation](/laminas-filter/standard-filters/#stringtolower)
+[`StringToLower` documentation](standard-filters.md#stringtolower)
 for more information about encoding and its exceptions.
 
 ## Rename
