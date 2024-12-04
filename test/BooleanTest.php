@@ -21,7 +21,6 @@ class BooleanTest extends TestCase
 {
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function integerProvider(): array
     {
@@ -41,7 +40,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function floatProvider(): array
     {
@@ -61,7 +59,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function booleanProvider(): array
     {
@@ -88,7 +85,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function stringProvider(): array
     {
@@ -108,7 +104,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function falseStringProvider(): array
     {
@@ -125,7 +120,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function nullProvider(): array
     {
@@ -141,7 +135,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function zeroStringProvider(): array
     {
@@ -158,7 +151,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument, 1: mixed, 2: mixed}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function emptyArrayProvider(): array
     {
@@ -291,7 +283,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: mixed, 1: bool}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function defaultTestProvider(): array
     {
@@ -318,7 +309,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: int-mask-of<Boolean::TYPE_*>, 1: list<array{0: mixed, 1: mixed}>}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function typeTestProvider(): array
     {
@@ -572,7 +562,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: list<TypeOption>, 1: list<array{0:mixed, 1:mixed}>}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function combinedTypeTestProvider(): array
     {
@@ -617,7 +606,6 @@ class BooleanTest extends TestCase
 
     /**
      * @return list<array{0: OptionsArgument}>
-     * @psalm-suppress PossiblyUnusedMethod
      */
     public static function duplicateProvider(): array
     {
