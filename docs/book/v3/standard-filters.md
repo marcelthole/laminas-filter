@@ -361,269 +361,146 @@ $filter = new Laminas\Filter\Callback([
 ]);
 $filter->filter('bing'); // returns 'bing,baz,bat'
 ```
+## CompressString and DecompressString
 
-## Compress and Decompress
+These two filters compress and decompress strings using either `GZ` or `BZ2` compression algorithms.
+Without any options, both filters will default to using `GZ` compression.
 
-These two filters are capable of compressing and decompressing strings, files, and directories.
+NOTE: **PHP Extensions Required**
+These filters require either the [`zlib`](https://www.php.net/zlib) or [`bzip2`](https://www.php.net/bzip2) PHP extensions depending on the adapter in use.
+Attempting to use these filters without the relevant extension installed will cause an exception to be thrown.
 
-### Supported Options
+### Default Behaviour
 
-The following options are supported for `Laminas\Filter\Compress` and `Laminas\Filter\Decompress`:
-
-- `adapter`: The compression adapter which should be used. It defaults to `Gz`.
-- `options`: Additional options which are given to the adapter at initiation.
-  Each adapter supports its own options.
-
-### Supported Compression Adapters
-
-The following compression formats are supported by their own adapter:
-
-- **Bz2**
-- **Gz**
-- **Tar**
-- **Zip**
-
-Each compression format has different capabilities as described below. All
-compression filters may be used in approximately the same ways, and differ
-primarily in the options available and the type of compression they offer (both
-algorithmically as well as string vs. file vs. directory)
-
-### Generic Handling
-
-To create a compression filter, you need to select the compression format you want to use. The
-following example takes the **Bz2** adapter. Details for all other adapters are described after
-this section.
-
-The two filters are basically identical, in that they utilize the same backends.
-`Laminas\Filter\Compress` should be used when you wish to compress items, and `Laminas\Filter\Decompress`
-should be used when you wish to decompress items.
-
-For instance, if we want to compress a string, we have to initialize `Laminas\Filter\Compress` and
-indicate the desired adapter:
+By default, strings will be compressed using Gzip compression:
 
 ```php
-$filter = new Laminas\Filter\Compress('Bz2');
+$compressFilter = new Laminas\Filter\CompressString();
+$compressed = $filter->filter('String Content');
+
+$decompressFilter = new Laminas\Filter\DecompressString();
+$value = $filter->filter($compressed); // "String Content"
 ```
 
-To use a different adapter, you simply specify it to the constructor.
+Non-string input will pass through the filters unchanged.
 
-You may also provide an array of options or a `Traversable` object. If you do,
-provide minimally the key "adapter", and then either the key "options" or
-"adapterOptions", both of which should be an array of options to provide to the
-adapter on instantiation.
+When compression or decompression of string input fails, an exception will be thrown.
+
+### Changing the Compression Type and Compression Level
+
+Both filters have the option `adapter` that accepts the aliases `'bz2'` or `'gz'`:
 
 ```php
-$filter = new Laminas\Filter\Compress([
-    'adapter' => 'Bz2',
-    'options' => [
-        'blocksize' => 8,
-    ],
+$filter = new Laminas\Filter\CompressString([
+    'adapter' => 'bz2',
 ]);
+
+$compressed = $filter->filter('Some Content');
 ```
 
-NOTE: **Default compression Adapter**
-When no compression adapter is given, then the **Gz** adapter will be used.
-
-Decompression is essentially the same usage; we simply use the `Decompress`
-filter instead:
+The `level` option can be provided to either increase or decrease the compression factor at the expense of CPU time, and should be an integer between 1 and 9 with 9 providing the greatest level of compression.
+Both `zlib` and `bzip2` extensions have a default compression level that balances compression ratio and performance; omitting the option uses these defaults.
 
 ```php
-$filter = new Laminas\Filter\Decompress('Bz2');
-```
-
-To get the compressed string, we have to give the original string. The filtered value is the
-compressed version of the original string.
-
-```php
-$filter     = new Laminas\Filter\Compress('Bz2');
-$compressed = $filter->filter('Uncompressed string');
-// Returns the compressed string
-```
-
-Decompression works in reverse, accepting the compressed string, and returning
-the original:
-
-```php
-$filter     = new Laminas\Filter\Decompress('Bz2');
-$compressed = $filter->filter('Compressed string');
-// Returns the original, uncompressed string
-```
-
-### Creating an Archive
-
-Creating an archive file works almost the same as compressing a string. However, in this case we
-need an additional parameter which holds the name of the archive we want to create.
-
-```php
-$filter = new Laminas\Filter\Compress([
-    'adapter' => 'Bz2',
-    'options' => [
-        'archive' => 'filename.bz2',
-    ],
+$filter = new Laminas\Filter\CompressString([
+    'adapter' => 'bz2',
+    'level' => 9,
 ]);
-$compressed = $filter->filter('Uncompressed string');
-// Returns true on success, and creates the archive file
+
+$compressed = $filter->filter('Some Content');
 ```
 
-In the above example, the uncompressed string is compressed, and is then written
-into the given archive file.
+### Custom Compression Adapters
 
-WARNING: **Existing Archives will be overwritten**
-The content of any existing file will be overwritten when the given filename of the archive already exists.
+It is also possible to provide an instance of `Laminas\Compress\StringCompressionAdapterInterface` to the `adapter` option of either filter.
+This can be leveraged to use compression algorithms other than BZ2 or Gzip.
 
-When you want to compress a file, then you must give the name of the file with its path:
+## CompressToArchive
+
+This filter compresses files, strings, directories and uploads to a pre-configured archive location using either `zip` or `tar` archive formats.
+The default archive format is `Zip`
+
+NOTE: **Additional PHP Extensions or Dependencies Required**
+These filters require either the [`zip`](https://www.php.net/zip) extension or the [`Archive_Tar` pear package](https://www.php.net/bzip2) depending on the adapter in use.
+Attempting to use these filters without the relevant extension or dependency installed will cause an exception to be thrown.
+`Archive_Tar` can be installed via composer with `composer require pear/archive_tar`.
+
+### Available Options
+
+- `archive`: This is the destination archive. The option is required and must be a path to the target archive in a directory that exists, and is writable by PHP.
+- `adapter`: Archive adapter - can be either `zip` or `tar` or an instance of `Laminas\Filter\Compress\ArchiveAdapterInterface`
+- `fileName`: When archiving arbitrary strings, the string will be placed in a file with this name prior to archiving. 
+
+### General Considerations
+
+- If an archive already exists at the configured target archive, it will be overwritten.
+- The filter will return the configured archive for successfully filtered content.
+- If the input cannot be filtered, the given value will be returned un-changed.
+
+### Archiving a File Path
+
+When the filter receives a file path, the file will be archived to the configured destination archive file:
 
 ```php
-$filter = new Laminas\Filter\Compress([
-    'adapter' => 'Bz2',
-    'options' => [
-        'archive' => 'filename.bz2'
-    ],
+$filter = new Laminas\Filter\CompressToArchive([
+    'archive' => '/path/to/archive.zip',
 ]);
-$compressed = $filter->filter('C:\temp\compressme.txt');
-// Returns true on success and creates the archive file
+
+$archiveLocation = $filter->filter('/path/to/any-file.txt');
 ```
 
-You may also specify a directory instead of a filename. In this case the whole
-directory with all its files and subdirectories will be compressed into the
-archive:
+### Archiving a Directory
+
+Given a directory, the contents of that directory will be archived.
 
 ```php
-$filter = new Laminas\Filter\Compress([
-    'adapter' => 'Bz2',
-    'options' => [
-        'archive' => 'filename.bz2'
-    ],
+$filter = new Laminas\Filter\CompressToArchive([
+    'archive' => '/path/to/archive.zip',
 ]);
-$compressed = $filter->filter('C:\temp\somedir');
-// Returns true on success and creates the archive file
+
+$archiveLocation = $filter->filter('/path/to/directory');
 ```
 
-NOTE: **Do not compress large or base Directories**
-You should never compress large or base directories like a complete partition.
-Compressing a complete partition is a very time consuming task which can lead to massive problems on your server when there is not enough space or your script takes too much time.
+### Archiving Arbitrary Strings
 
-### Decompressing an Archive
-
-Decompressing an archive file works almost like compressing it. You must specify either the
-`archive` parameter, or give the filename of the archive when you decompress the file.
+If you wish to accept arbitrary string content, those contents will first be placed in a file with the file name configured in the _(required)_ option `fileName` and archived in the configured archive location:
 
 ```php
-$filter = new Laminas\Filter\Decompress('Bz2');
-$decompressed = $filter->filter('filename.bz2');
-// Returns true on success and decompresses the archive file
-```
-
-Some adapters support decompressing the archive into another subdirectory. In
-this case you can set the `target` parameter:
-
-```php
-$filter = new Laminas\Filter\Decompress([
-    'adapter' => 'Zip',
-    'options' => [
-        'target' => 'C:\temp',
-    ]
+$filter = new Laminas\Filter\CompressToArchive([
+    'archive' => '/path/to/archive.zip',
+    'fileName' => 'Content.txt',
 ]);
-$decompressed = $filter->filter('filename.zip');
-// Returns true on success, and decompresses the archive file
-// into the given target directory
+
+$filter->filter('Kermit the Frog');
 ```
 
-NOTE: **Directories to extract to must exist**
-When you want to decompress an archive into a directory, then the target directory must exist.
+### Archiving PSR7 Uploaded Files and PHP Uploads
 
-### Bz2 Adapter
+When a PSR7 `UploadedFileInterface` or a `$_FILES` array is encountered, the uploaded file will be archived in the configured archive location:
 
-The Bz2 Adapter can compress and decompress:
+```php
+$filter = new Laminas\Filter\CompressToArchive([
+    'archive' => '/path/to/archive.zip',
+]);
+$filter->filter($uploadedFile);
+```
 
-- Strings
-- Files
-- Directories
+Note that PHP provides randomised filenames without a filename extension, so you may need to implement additional measures to track the contents of the archive as something more meaningful.
+This filter does not use the "Client File Name" provided as part of the uploaded file information because it can't be guaranteed to be sanitised prior to filtering.
 
-This adapter makes use of PHP's Bz2 extension.
+### Using a Different Adapter
 
-To customize compression, this adapter supports the following options:
+2 adapters are available: `zip` and `tar`.
+You can specify which adapter to use with the `adapter` option, and this option can also be any object that implements `Laminas\Filter\Compress\ArchiveAdapterInterface`:
 
-- `archive`: This parameter sets the archive file which should be used or created.
-- `blocksize`: This parameter sets the blocksize to use. It can be from '0' to
-  '9'. The default value is '4'.
+```php
+$filter = new Laminas\Filter\CompressToArchive([
+    'archive' => '/path/to/archive.tar',
+    'adapter' => 'tar',
+]);
 
-All options can be set at instantiation or by using a related method; for example, the related
-methods for 'blocksize' are `getBlocksize()` and `setBlocksize()`. You can also use the
-`setOptions()` method, which accepts an array of all options.
-
-### Gz Adapter
-
-The Gz Adapter can compress and decompress:
-
-- Strings
-- Files
-- Directories
-
-This adapter makes use of PHP's Zlib extension.
-
-To customize the compression this adapter supports the following options:
-
-- `archive`: This parameter sets the archive file which should be used or created.
-- `level`: This compression level to use. It can be from '0' to '9'. The default
-  value is '9'.
-- `mode`: There are two supported modes. `compress` and `deflate`. The default
-  value is `compress`.
-
-All options can be set at initiation or by using a related method. For example, the related methods
-for `level` are `getLevel()` and `setLevel()`. You can also use the `setOptions()` method which
-accepts an array of all options.
-
-### Tar Adapter
-
-The Tar Adapter can compress and decompress:
-
-- Files
-- Directories
-
-NOTE: **Tar does not support Strings**
-The Tar Adapter can not handle strings.
-
-This adapter makes use of PEAR's `Archive_Tar` component.
-
-To customize compression, this adapter supports the following options:
-
-- `archive`: This parameter sets the archive file which should be used or created.
-- `mode`: A mode to use for compression. Supported are either `NULL`, which
-  means no compression at all; `Gz`, which makes use of PHP's Zlib extension;
-  and `Bz2`, which makes use of PHP's Bz2 extension. The default value is `NULL`.
-- `target`: The target where the decompressed files will be written to.
-
-All options can be set at instantiation or by using a related method. For
-example, the related methods for `target` are `getTarget()` and `setTarget()`.
-You can also use the `setOptions()` method which accepts an array of all
-options.
-
-NOTE: **Directory Usage**
-When compressing directories with Tar, the complete file path is used.
-This means that created Tar files will not only have the subdirectory, but the complete path for the compressed file.
-
-### Zip Adapter
-
-The Zip Adapter can compress and decompress:
-
-- Strings
-- Files
-- Directories
-
-NOTE: **Zip does not support String Decompression**
-The Zip Adapter can not handle decompression to a string; decompression will always be written to a file.
-
-This adapter makes use of PHP's `Zip` extension.
-
-To customize compression, this adapter supports the following options:
-
-- `archive`: This parameter sets the archive file which should be used or created.
-- `target`: The target where the decompressed files will be written to.
-
-All options can be set at instantiation or by using a related method. For example, the related
-methods for `target` are `getTarget()` and `setTarget()`. You can also use the `setOptions()` method
-which accepts an array of all options.
+$archiveLocation = $filter->filter('/path/to/file.txt');
+```
 
 ## DateTimeFormatter
 
@@ -666,6 +543,54 @@ $filter = new \Laminas\Filter\DateTimeFormatter([
 ]);
 echo $filter->filter('2024-01-01'); // => 2024-01-01T00:00:00+01:00
 ```
+
+## DecompressArchive
+
+This filter accepts an archive in the form of a file path, a PHP uploaded file array or a PSR-7 uploaded file and de-compresses the file to a configured target directory returning the location where the files are expanded.
+
+NOTE: **Additional PHP Extensions or Dependencies Required**
+These filters require either the [`zip`](https://www.php.net/zip) extension or the [`Archive_Tar` pear package](https://www.php.net/bzip2) depending on the adapter in use.
+Attempting to use these filters without the relevant extension or dependency installed will cause an exception to be thrown.
+`Archive_Tar` can be installed via composer with `composer require pear/archive_tar`.
+
+### Basic Behaviour
+
+```php
+$filter = new Laminas\Filter\DecompressArchive([
+    'target' => '/path/to/writable/directory',
+]);
+
+$result = $filter->filter('/path/to/an-archive.tar.gz');
+assert($result === '/path/to/writable/directory');
+```
+
+The type of archive will be automatically detected, first by using PHP's built-in mime-type detection _(via mime magic)_ and falling back to filename extension, then, the relevant archive adapter will then be used to expand the archive.
+
+NOTE: **The target directory must exist** The directory configured for expanding files must exist, _and_ it must be writable. The filter makes no attempt to create intermediate directories. 
+
+Zip and Tar archives are supported out of the box.
+
+Other archive formats can be supported by writing custom adapters and configuring or creating custom matchers to map mime-type or filename extensions to the custom adapter.
+
+When the input cannot be recognised as a supported archive type, or the input cannot be filtered for any other reason, the input is returned un-altered:
+
+```php
+$filter = new Laminas\Filter\DecompressArchive([
+    'target' => '/path/to/writable/directory',
+]);
+
+$directory = $filter->filter('Fozzy Bear');
+assert($result === 'Fozzy Bear');
+```
+
+### Supported Options
+
+- `target` _(required)_ A path to the directory where files will be expanded
+- `matcher` _(optional)_ An instance of `Laminas\Compress\ArchiveAdapterResolverInterface` used to determine the appropriate adapter to use for the detected file type.
+
+### Security Considerations
+
+There is no protection from [Zip Bombs](https://wikipedia.org/wiki/Zip_bomb) in this filter. It is your responsibility to validate and sanitize the input prior to applying this filter.
 
 ## DenyList
 
