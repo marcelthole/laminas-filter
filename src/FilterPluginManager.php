@@ -38,6 +38,7 @@ final class FilterPluginManager extends AbstractPluginManager
             DateSelect::class                  => InvokableFactory::class,
             DateTimeFormatter::class           => InvokableFactory::class,
             DateTimeSelect::class              => InvokableFactory::class,
+            DecompressArchive::class           => InvokableFactory::class,
             DecompressString::class            => InvokableFactory::class,
             DenyList::class                    => InvokableFactory::class,
             Digits::class                      => InvokableFactory::class,
