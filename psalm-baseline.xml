@@ -167,6 +167,16 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[$options]]></code>
+      <code><![CDATA[AdapterTypeOrInstance]]></code>
+      <code><![CDATA[AdapterTypeOrInstance]]></code>
+      <code><![CDATA[Compress]]></code>
+      <code><![CDATA[CompressionAlgorithmInterface]]></code>
+      <code><![CDATA[Options|Traversable<string, mixed>]]></code>
+      <code><![CDATA[Options|Traversable<string, mixed>|null|AdapterTypeOrInstance]]></code>
+      <code><![CDATA[protected $adapter = 'Gz';]]></code>
+    </DeprecatedInterface>
     <DocblockTypeContradiction>
       <code><![CDATA[! is_array($options) && ! $options instanceof Traversable]]></code>
       <code><![CDATA[is_string($adapter)]]></code>
@@ -191,6 +201,9 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Compress/AbstractCompressionAlgorithm.php">
+    <DeprecatedInterface>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+    </DeprecatedInterface>
     <InvalidPropertyAssignmentValue>
       <code><![CDATA[[]]]></code>
     </InvalidPropertyAssignmentValue>
@@ -202,6 +215,13 @@
     </MixedReturnStatement>
   </file>
   <file src="src/Compress/Bz2.php">
+    <DeprecatedClass>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+      <code><![CDATA[parent::__construct($options)]]></code>
+    </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[Bz2]]></code>
+    </DeprecatedInterface>
     <InvalidReturnStatement>
       <code><![CDATA[$compressed]]></code>
     </InvalidReturnStatement>
@@ -230,6 +250,13 @@
     </UnusedFunctionCall>
   </file>
   <file src="src/Compress/Gz.php">
+    <DeprecatedClass>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+      <code><![CDATA[parent::__construct($options)]]></code>
+    </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[Gz]]></code>
+    </DeprecatedInterface>
     <InvalidNullableReturnType>
       <code><![CDATA[int]]></code>
       <code><![CDATA[string]]></code>
@@ -272,6 +299,9 @@
     </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/Compress/Lzf.php">
+    <DeprecatedInterface>
+      <code><![CDATA[Lzf]]></code>
+    </DeprecatedInterface>
     <ParamNameMismatch>
       <code><![CDATA[$content]]></code>
       <code><![CDATA[$content]]></code>
@@ -281,6 +311,13 @@
     </PossiblyUnusedParam>
   </file>
   <file src="src/Compress/Rar.php">
+    <DeprecatedClass>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+      <code><![CDATA[parent::__construct($options)]]></code>
+    </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[Rar]]></code>
+    </DeprecatedInterface>
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[bool]]></code>
       <code><![CDATA[string|null]]></code>
@@ -319,6 +356,9 @@
     </UndefinedClass>
   </file>
   <file src="src/Compress/Snappy.php">
+    <DeprecatedInterface>
+      <code><![CDATA[Snappy]]></code>
+    </DeprecatedInterface>
     <MixedAssignment>
       <code><![CDATA[$compressed]]></code>
       <code><![CDATA[$compressed]]></code>
@@ -340,6 +380,13 @@
     </PossiblyUnusedParam>
   </file>
   <file src="src/Compress/Tar.php">
+    <DeprecatedClass>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+      <code><![CDATA[parent::__construct($options)]]></code>
+    </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[Tar]]></code>
+    </DeprecatedInterface>
     <InvalidNullableReturnType>
       <code><![CDATA[string]]></code>
       <code><![CDATA[string]]></code>
@@ -388,6 +435,13 @@
     </RedundantCastGivenDocblockType>
   </file>
   <file src="src/Compress/Zip.php">
+    <DeprecatedClass>
+      <code><![CDATA[AbstractCompressionAlgorithm]]></code>
+      <code><![CDATA[parent::__construct($options)]]></code>
+    </DeprecatedClass>
+    <DeprecatedInterface>
+      <code><![CDATA[Zip]]></code>
+    </DeprecatedInterface>
     <InvalidNullableReturnType>
       <code><![CDATA[string]]></code>
     </InvalidNullableReturnType>
@@ -475,6 +529,9 @@
     </MixedArgumentTypeCoercion>
   </file>
   <file src="src/Decompress.php">
+    <DeprecatedClass>
+      <code><![CDATA[Compress]]></code>
+    </DeprecatedClass>
     <PossiblyNullArgument>
       <code><![CDATA[$value]]></code>
     </PossiblyNullArgument>
@@ -591,6 +648,10 @@
     </RedundantCondition>
   </file>
   <file src="src/Encrypt/BlockCipher.php">
+    <DeprecatedClass>
+      <code><![CDATA[new Compress($this->compression)]]></code>
+      <code><![CDATA[new Decompress($this->compression)]]></code>
+    </DeprecatedClass>
     <DeprecatedInterface>
       <code><![CDATA[BlockCipher]]></code>
     </DeprecatedInterface>
@@ -688,6 +749,10 @@
       <code><![CDATA[$this->compression]]></code>
       <code><![CDATA[$this->compression]]></code>
     </ArgumentTypeCoercion>
+    <DeprecatedClass>
+      <code><![CDATA[new Compress($this->compression)]]></code>
+      <code><![CDATA[new Decompress($this->compression)]]></code>
+    </DeprecatedClass>
     <DeprecatedInterface>
       <code><![CDATA[Openssl]]></code>
     </DeprecatedInterface>
@@ -1075,6 +1140,16 @@
   <file src="src/FilterPluginManager.php">
     <DeprecatedClass>
       <code><![CDATA[Blacklist::class]]></code>
+      <code><![CDATA[Compress::class]]></code>
+      <code><![CDATA[Compress::class]]></code>
+      <code><![CDATA[Compress::class]]></code>
+      <code><![CDATA[Compress::class]]></code>
+      <code><![CDATA[Compress::class]]></code>
+      <code><![CDATA[Decompress::class]]></code>
+      <code><![CDATA[Decompress::class]]></code>
+      <code><![CDATA[Decompress::class]]></code>
+      <code><![CDATA[Decompress::class]]></code>
+      <code><![CDATA[Decompress::class]]></code>
       <code><![CDATA[Decrypt::class]]></code>
       <code><![CDATA[Decrypt::class]]></code>
       <code><![CDATA[Decrypt::class]]></code>
@@ -1683,6 +1758,20 @@
     </InvalidArgument>
   </file>
   <file src="test/Compress/Bz2Test.php">
+    <DeprecatedClass>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression()]]></code>
+      <code><![CDATA[new Bz2Compression(['blocksize' => 8])]]></code>
+    </DeprecatedClass>
     <DocblockTypeContradiction>
       <code><![CDATA[assertTrue]]></code>
       <code><![CDATA[assertTrue]]></code>
@@ -1696,6 +1785,20 @@
     </NullArgument>
   </file>
   <file src="test/Compress/GzTest.php">
+    <DeprecatedClass>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression()]]></code>
+      <code><![CDATA[new GzCompression(['level' => 8])]]></code>
+      <code><![CDATA[new GzCompression(['mode' => 'deflate'])]]></code>
+    </DeprecatedClass>
     <DocblockTypeContradiction>
       <code><![CDATA[assertTrue]]></code>
     </DocblockTypeContradiction>
@@ -1725,7 +1828,118 @@
       <code><![CDATA[new SnappyCompression()]]></code>
     </DeprecatedClass>
   </file>
+  <file src="test/Compress/TarTest.php">
+    <DeprecatedClass>
+      <code><![CDATA[new TarCompression(
+            [
+                'archive' => $this->tmp . '/compressed.tar',
+                'target'  => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new TarCompression(
+            [
+                'archive' => $this->tmp . '/compressed.tar',
+                'target'  => $this->tmp . '/zipextracted.txt',
+            ]
+        )]]></code>
+      <code><![CDATA[new TarCompression(
+            [
+                'archive' => $this->tmp . '/compressed.tar',
+                'target'  => $this->tmp . '/zipextracted.txt',
+            ]
+        )]]></code>
+      <code><![CDATA[new TarCompression()]]></code>
+      <code><![CDATA[new TarCompression()]]></code>
+      <code><![CDATA[new TarCompression()]]></code>
+      <code><![CDATA[new TarCompression()]]></code>
+      <code><![CDATA[new TarCompression()]]></code>
+      <code><![CDATA[new TarCompression([
+            'archive' => $this->tmp . '/compressed.tar',
+            'target'  => $this->tmp . '/zipextracted.txt',
+        ])]]></code>
+      <code><![CDATA[new TarCompression([
+            'target' => $target,
+        ])]]></code>
+    </DeprecatedClass>
+  </file>
+  <file src="test/Compress/ZipTest.php">
+    <DeprecatedClass>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/zipextracted.txt',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp . '/zipextracted.txt',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'archive' => $this->tmp . '/compressed.zip',
+                'target'  => $this->tmp,
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression(
+            [
+                'target' => $this->tmp . '/_compress',
+            ]
+        )]]></code>
+      <code><![CDATA[new ZipCompression()]]></code>
+      <code><![CDATA[new ZipCompression()]]></code>
+      <code><![CDATA[new ZipCompression()]]></code>
+      <code><![CDATA[new ZipCompression()]]></code>
+    </DeprecatedClass>
+  </file>
   <file src="test/CompressTest.php">
+    <DeprecatedClass>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter($filterType)]]></code>
+      <code><![CDATA[new CompressFilter('Bz2')]]></code>
+      <code><![CDATA[new CompressFilter()]]></code>
+      <code><![CDATA[new CompressFilter()]]></code>
+      <code><![CDATA[new CompressFilter([
+            'adapter' => $filterType,
+            'options' => [
+                'archive' => 'test.txt',
+            ],
+        ])]]></code>
+    </DeprecatedClass>
     <MixedAssignment>
       <code><![CDATA[$compressed]]></code>
     </MixedAssignment>
@@ -1759,6 +1973,17 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/DecompressTest.php">
+    <DeprecatedClass>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+      <code><![CDATA[new DecompressFilter($filterType)]]></code>
+    </DeprecatedClass>
     <MixedAssignment>
       <code><![CDATA[$compressed]]></code>
     </MixedAssignment>
