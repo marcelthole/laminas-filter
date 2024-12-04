@@ -1,5 +1,13 @@
 # Filter Chains
 
+> MISSING: **Installation Requirements**
+> The following examples use the [`Alpha` filter from the `laminas/laminas-i18n`](https://docs.laminas.dev/laminas-i18n/filters/alpha/).
+> Make sure to install the required package before running the examples.
+>
+> ```bash
+> $ composer require laminas/laminas-i18n
+> ```
+
 Often, multiple filters should be applied to some value in a particular order.
 For example, a login form accepts a username that should be lowercase and
 contain only alphabetic characters.
