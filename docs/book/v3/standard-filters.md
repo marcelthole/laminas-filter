@@ -361,6 +361,7 @@ $filter = new Laminas\Filter\Callback([
 ]);
 $filter->filter('bing'); // returns 'bing,baz,bat'
 ```
+
 ## CompressString and DecompressString
 
 These two filters compress and decompress strings using either `GZ` or `BZ2` compression algorithms.
@@ -429,7 +430,7 @@ Attempting to use these filters without the relevant extension or dependency ins
 
 - `archive`: This is the destination archive. The option is required and must be a path to the target archive in a directory that exists, and is writable by PHP.
 - `adapter`: Archive adapter - can be either `zip` or `tar` or an instance of `Laminas\Filter\Compress\ArchiveAdapterInterface`
-- `fileName`: When archiving arbitrary strings, the string will be placed in a file with this name prior to archiving. 
+- `fileName`: When archiving arbitrary strings, the string will be placed in a file with this name prior to archiving.
 
 ### General Considerations
 
@@ -463,7 +464,7 @@ $archiveLocation = $filter->filter('/path/to/directory');
 
 ### Archiving Arbitrary Strings
 
-If you wish to accept arbitrary string content, those contents will first be placed in a file with the file name configured in the _(required)_ option `fileName` and archived in the configured archive location:
+If you wish to accept arbitrary string content, those contents will first be placed in a file with the file name configured in the *(required)* option `fileName` and archived in the configured archive location:
 
 ```php
 $filter = new Laminas\Filter\CompressToArchive([
@@ -564,9 +565,9 @@ $result = $filter->filter('/path/to/an-archive.tar.gz');
 assert($result === '/path/to/writable/directory');
 ```
 
-The type of archive will be automatically detected, first by using PHP's built-in mime-type detection _(via mime magic)_ and falling back to filename extension, then, the relevant archive adapter will then be used to expand the archive.
+The type of archive will be automatically detected, first by using PHP's built-in mime-type detection *(via mime magic)* and falling back to filename extension, then, the relevant archive adapter will then be used to expand the archive.
 
-NOTE: **The target directory must exist** The directory configured for expanding files must exist, _and_ it must be writable. The filter makes no attempt to create intermediate directories. 
+NOTE: **The target directory must exist** The directory configured for expanding files must exist, *and* it must be writable. The filter makes no attempt to create intermediate directories.
 
 Zip and Tar archives are supported out of the box.
 
@@ -585,8 +586,8 @@ assert($result === 'Fozzy Bear');
 
 ### Supported Options
 
-- `target` _(required)_ A path to the directory where files will be expanded
-- `matcher` _(optional)_ An instance of `Laminas\Compress\ArchiveAdapterResolverInterface` used to determine the appropriate adapter to use for the detected file type.
+- `target` *(required)* A path to the directory where files will be expanded
+- `matcher` *(optional)* An instance of `Laminas\Compress\ArchiveAdapterResolverInterface` used to determine the appropriate adapter to use for the detected file type.
 
 ### Security Considerations
 
