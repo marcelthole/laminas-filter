@@ -45,8 +45,8 @@ provided will be used to inflect the text. Classes are typically specified
 using a short name indicating the filter name stripped of any common prefix.
 
 As an example, you can use any laminas-filter concrete implementations; however,
-instead of referring to them as `Laminas\I18n\Filter\Alpha` or
-`Laminas\Filter\StringToLower`, you'd specify only `Alpha` or `StringToLower`.
+instead of referring to them as `Laminas\Filter\Boolean` or
+`Laminas\Filter\StringToLower`, you'd specify only `Boolean` or `StringToLower`.
 
 ### Using Custom Filters
 
