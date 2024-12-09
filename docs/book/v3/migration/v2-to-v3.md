@@ -116,6 +116,24 @@ The following methods have been removed:
 
 The constructor now only accepts an associative array of [documented options](../standard-filters.md#denylist).
 
+#### `MonthSelect`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `setNullOnAllEmpty`
+- `isNullOnAllEmpty`
+- `setNullOnEmpty`
+- `isNullOnEmpty`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#monthselect).
+
+RuntimeException are no longer thrown when the filter receives an array with the incorrect number of elements.
+
+All invalid values passed to the filter, including out of range months and years, will now return the original value.
+Validators should be used to ensure the input has been filtered as expected, and to enforce any additional constraints.
+
 #### `PregReplace`
 
 The following methods have been removed:
