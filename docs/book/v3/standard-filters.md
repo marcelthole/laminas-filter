@@ -704,6 +704,29 @@ print $filter->filter('-4.4');
 
 This will return `-4.4` (as a float).
 
+## MonthSelect
+
+`Laminas\Filter\MonthSelect` allows you to filter a month and year value into a hyphen dash string.
+
+### Supported Options
+
+The following options are supported for `Laminas\Filter\MonthSelect`:
+
+- `null_on_empty` => This defaults to `false`.
+If set to `true`, the filter will return `null` if either month or year is empty.
+- `null_on_all_empty` => This defaults to `false`.
+If set to `true`, the filter will return `null` if both month and year are empty.
+
+### Basic Usage
+
+```php
+$filter = new Laminas\Filter\MonthSelect();
+
+print $filter->filter(['month' => '2', 'year' => '2012']);
+````
+
+This will return '2012-02'.
+
 ## ToInt
 
 `Laminas\Filter\ToInt` allows you to transform a scalar value into an integer.
