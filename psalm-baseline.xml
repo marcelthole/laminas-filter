@@ -199,20 +199,6 @@
       <code><![CDATA[(bool) $flag]]></code>
     </RedundantCastGivenDocblockType>
   </file>
-  <file src="src/FilterChain.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <MixedPropertyTypeCoercion>
-      <code><![CDATA[new PriorityQueue()]]></code>
-    </MixedPropertyTypeCoercion>
-    <MoreSpecificImplementedParamType>
-      <code><![CDATA[$options]]></code>
-    </MoreSpecificImplementedParamType>
-    <RedundantFunctionCall>
-      <code><![CDATA[strtolower]]></code>
-    </RedundantFunctionCall>
-  </file>
   <file src="src/FilterProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[FilterProviderInterface]]></code>
