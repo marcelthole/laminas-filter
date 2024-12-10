@@ -105,6 +105,24 @@ The following methods have been removed:
 
 The constructor now only accepts an associative array of [documented options](../word.md#dashtoseparator).
 
+#### `DateSelect`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `setNullOnAllEmpty`
+- `isNullOnAllEmpty`
+- `setNullOnEmpty`
+- `isNullOnEmpty`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#dateselect).
+
+RuntimeException are no longer thrown when the filter receives an array with the incorrect number of elements.
+
+All invalid values passed to the filter, invalid calendar dates, will now return the original value.
+Validators should be used to ensure the input has been filtered as expected, and to enforce any additional constraints.
+
 #### `DenyList`
 
 The following methods have been removed:

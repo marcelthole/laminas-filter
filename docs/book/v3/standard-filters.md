@@ -412,6 +412,29 @@ $filter = new Laminas\Filter\CompressToArchive([
 $archiveLocation = $filter->filter('/path/to/file.txt');
 ```
 
+## DateSelect
+
+`Laminas\Filter\DateSelect` allows you to filter a day, month, and year value into a dash separated string.
+
+### Supported Options
+
+The following options are supported for `Laminas\Filter\DateSelect`:
+
+- `null_on_empty` => This defaults to `false`.
+If set to `true`, the filter will return `null` if day, month, or year are empty.
+- `null_on_all_empty` => This defaults to `false`.
+If set to `true`, the filter will return `null` if day, month, and year are empty.
+
+### Basic Usage
+
+```php
+$filter = new Laminas\Filter\DateSelect();
+
+print $filter->filter(['day' => '1', 'month' => '2', 'year' => '2012']);
+````
+
+This will return '2012-02-01'.
+
 ## DateTimeFormatter
 
 This filter formats either a `DateTimeInterface` object, a string, or integer that `DateTime` will understand to a date
@@ -706,7 +729,7 @@ This will return `-4.4` (as a float).
 
 ## MonthSelect
 
-`Laminas\Filter\MonthSelect` allows you to filter a month and year value into a hyphen dash string.
+`Laminas\Filter\MonthSelect` allows you to filter a month and year value into a dash separated string.
 
 ### Supported Options
 
