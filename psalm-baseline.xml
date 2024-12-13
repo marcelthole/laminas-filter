@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
-  <file src="src/AbstractDateDropdown.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[setNullOnAllEmpty]]></code>
-      <code><![CDATA[setNullOnEmpty]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/AbstractFilter.php">
     <DocblockTypeContradiction>
       <code><![CDATA[gettype($options)]]></code>
@@ -30,11 +21,6 @@
     <RedundantConditionGivenDocblockType>
       <code><![CDATA[is_object($options)]]></code>
     </RedundantConditionGivenDocblockType>
-  </file>
-  <file src="src/DateTimeSelect.php">
-    <MixedReturnStatement>
-      <code><![CDATA[$value]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Dir.php">
     <DeprecatedClass>

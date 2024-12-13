@@ -4,80 +4,149 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
+use DateTime;
+
 use function is_array;
-use function ksort;
-use function vsprintf;
+use function is_numeric;
+use function sprintf;
 
 /**
  * @psalm-type Options = array{
  *     null_on_empty?: bool,
  *     null_on_all_empty?: bool,
- *     ...
  * }
- * @psalm-type InputArray = array{
- *     year: numeric,
- *     month: numeric,
- *     day: numeric,
- *     hour: numeric,
- *     minute: numeric,
- *     second: numeric,
- * }
- * @template TOptions of Options
- * @template-extends AbstractDateDropdown<TOptions, InputArray>
+ * @implements FilterInterface<string|null>
  */
-final class DateTimeSelect extends AbstractDateDropdown
+final class DateTimeSelect implements FilterInterface
 {
-    /**
-     * Year-Month-Day Hour:Min:Sec
-     */
-    protected string $format      = '%6$s-%4$s-%1$s %2$s:%3$s:%5$s';
-    protected int $expectedInputs = 6;
+    private readonly bool $returnNullIfAnyFieldEmpty;
+    private readonly bool $returnNullIfAllFieldsEmpty;
 
-    /** @inheritDoc */
+    /** @param Options $options */
+    public function __construct(array $options = [])
+    {
+        $this->returnNullIfAnyFieldEmpty  = $options['null_on_empty'] ?? false;
+        $this->returnNullIfAllFieldsEmpty = $options['null_on_all_empty'] ?? false;
+    }
+
+    public function __invoke(mixed $value): mixed
+    {
+        return $this->filter($value);
+    }
+
+    /**
+     * Returns the result of filtering $value
+     *
+     * @template T
+     * @param T $value
+     * @return string|null|T
+     */
     public function filter(mixed $value): mixed
     {
         if (! is_array($value)) {
-            // nothing to do
             return $value;
         }
 
+        $second = $this->getValue($value, 'second', 0);
+        $minute = $this->getValue($value, 'minute');
+        $hour   = $this->getValue($value, 'hour');
+        $day    = $this->getValue($value, 'day');
+        $month  = $this->getValue($value, 'month');
+        $year   = $this->getValue($value, 'year');
+
         if (
-            $this->isNullOnEmpty()
+            $this->returnNullIfAnyFieldEmpty
             && (
-                empty($value['year'])
-                || empty($value['month'])
-                || empty($value['day'])
-                || empty($value['hour'])
-                || empty($value['minute'])
-                || (isset($value['second']) && empty($value['second']))
+                $day === null
+                || $month === null
+                || $year === null
+                || $hour === null
+                || $minute === null
             )
         ) {
             return null;
         }
 
         if (
-            $this->isNullOnAllEmpty()
+            $this->returnNullIfAllFieldsEmpty
             && (
-                empty($value['year'])
-                && empty($value['month'])
-                && empty($value['day'])
-                && empty($value['hour'])
-                && empty($value['minute'])
-                && empty($value['second'])
+                $day === null
+                && $month === null
+                && $year === null
+                && $hour === null
+                && $minute === null
             )
         ) {
-            // Cannot handle this value
             return null;
         }
 
-        if (! isset($value['second'])) {
-            $value['second'] = '00';
+        if ($day === null || $month === null || $year === null || $hour === null || $minute === null) {
+            return $value;
         }
 
-        $this->filterable($value);
+        if (! $this->isParsableAsDateTimeValue($second, $minute, $hour, $day, $month, $year)) {
+            /** @psalm-var T */
+            return $value;
+        }
 
-        ksort($value);
+        return sprintf('%d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $hour, $minute, $second);
+    }
 
-        return vsprintf($this->format, $value);
+    /**
+     * @psalm-assert-if-true int $second
+     * @psalm-assert-if-true int $minute
+     * @psalm-assert-if-true int $hour
+     * @psalm-assert-if-true int $day
+     * @psalm-assert-if-true int $month
+     * @psalm-assert-if-true int $year
+     */
+    private function isParsableAsDateTimeValue(
+        mixed $second,
+        mixed $minute,
+        mixed $hour,
+        mixed $day,
+        mixed $month,
+        mixed $year
+    ): bool {
+        if (
+            ! is_numeric($second)
+            || ! is_numeric($minute)
+            || ! is_numeric($hour)
+            || ! is_numeric($day)
+            || ! is_numeric($month)
+            || ! is_numeric($year)
+        ) {
+            return false;
+        }
+
+        $date = DateTime::createFromFormat(
+            'Y-m-d H:i:s',
+            sprintf('%d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $hour, $minute, $second)
+        );
+
+        if (
+            ! $date
+            || $date->format('YmdHis') !== sprintf(
+                '%d%02d%02d%02d%02d%02d',
+                $year,
+                $month,
+                $day,
+                $hour,
+                $minute,
+                $second
+            )
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** @param mixed[] $value */
+    private function getValue(array $value, string $string, ?int $defult = null): mixed
+    {
+        /** @var mixed $result */
+        $result = $value[$string] ?? $defult;
+        return $result === '' ? $defult : $result;
     }
 }

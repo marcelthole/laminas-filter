@@ -477,6 +477,30 @@ $filter = new \Laminas\Filter\DateTimeFormatter([
 echo $filter->filter('2024-01-01'); // => 2024-01-01T00:00:00+01:00
 ```
 
+## DateTimeSelect
+
+`Laminas\Filter\DateTimeSelect` allows you to filter second, minute, hour, day, month, and year values into a string of format `Y-m-d H:i:s`.
+If not in the input array, second will default to 0.
+
+### Supported Options
+
+The following options are supported for `Laminas\Filter\DateTimeSelect`:
+
+- `null_on_empty` => This defaults to `false`.
+  If set to `true`, the filter will return `null` if minute, hour, day, month, or year are empty.
+- `null_on_all_empty` => This defaults to `false`.
+  If set to `true`, the filter will return `null` if minute, hour, day, month, and year are empty.
+
+### Basic Usage
+
+```php
+$filter = new Laminas\Filter\DateTimeSelect();
+
+print $filter->filter(['second' => '1', 'month' => '2', 'hour' => '3', 'day' => '4', 'month' => '5', 'year' => '2012']);
+````
+
+This will return '2012-05-04 03:02:01'.
+
 ## DecompressArchive
 
 This filter accepts an archive in the form of a file path, a PHP uploaded file array or a PSR-7 uploaded file and de-compresses the file to a configured target directory returning the location where the files are expanded.
