@@ -123,6 +123,24 @@ RuntimeException are no longer thrown when the filter receives an array with the
 All invalid values passed to the filter, invalid calendar dates, will now return the original value.
 Validators should be used to ensure the input has been filtered as expected, and to enforce any additional constraints.
 
+#### `DateTimeSelect`
+
+The following methods have been removed:
+
+- `setOptions`
+- `getOptions`
+- `setNullOnAllEmpty`
+- `isNullOnAllEmpty`
+- `setNullOnEmpty`
+- `isNullOnEmpty`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#datetimeselect).
+
+RuntimeException are no longer thrown when the filter receives an array with the incorrect number of elements.
+
+All invalid values passed to the filter, invalid calendar dates or times, will now return the original value.
+Validators should be used to ensure the input has been filtered as expected, and to enforce any additional constraints.
+
 #### `DenyList`
 
 The following methods have been removed:
