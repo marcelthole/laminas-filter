@@ -1179,6 +1179,8 @@
       <code><![CDATA[UriNormalize::class]]></code>
       <code><![CDATA[UriNormalize::class]]></code>
       <code><![CDATA[Whitelist::class]]></code>
+      <code><![CDATA[Word\Service\SeparatorToSeparatorFactory::class]]></code>
+      <code><![CDATA[Word\Service\SeparatorToSeparatorFactory::class]]></code>
     </DeprecatedClass>
     <DuplicateArrayKey>
       <code><![CDATA[ToInt::class                       => InvokableFactory::class]]></code>
@@ -1614,6 +1616,10 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedMethod>
+      <code><![CDATA[setReplacementSeparator]]></code>
+      <code><![CDATA[setSearchSeparator]]></code>
+    </DeprecatedMethod>
     <DocblockTypeContradiction>
       <code><![CDATA[$this->searchSeparator === null]]></code>
     </DocblockTypeContradiction>
@@ -2090,6 +2096,12 @@
     <UnusedClosureParam>
       <code><![CDATA[$container]]></code>
     </UnusedClosureParam>
+  </file>
+  <file src="test/FilterPluginManagerTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getReplacementSeparator]]></code>
+      <code><![CDATA[getSearchSeparator]]></code>
+    </DeprecatedMethod>
   </file>
   <file src="test/ForceUriSchemeTest.php">
     <PossiblyUnusedMethod>
