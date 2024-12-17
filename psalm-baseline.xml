@@ -1124,6 +1124,18 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedConstant>
+      <code><![CDATA[self::DEFAULT_PRIORITY]]></code>
+      <code><![CDATA[self::DEFAULT_PRIORITY]]></code>
+      <code><![CDATA[static::DEFAULT_PRIORITY]]></code>
+      <code><![CDATA[static::DEFAULT_PRIORITY]]></code>
+    </DeprecatedConstant>
+    <DeprecatedMethod>
+      <code><![CDATA[getPluginManager]]></code>
+      <code><![CDATA[getPluginManager]]></code>
+      <code><![CDATA[setOptions]]></code>
+      <code><![CDATA[setPluginManager]]></code>
+    </DeprecatedMethod>
     <MixedPropertyTypeCoercion>
       <code><![CDATA[new PriorityQueue()]]></code>
     </MixedPropertyTypeCoercion>
@@ -2067,6 +2079,11 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/FilterChainTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getFilters]]></code>
+      <code><![CDATA[getFilters]]></code>
+      <code><![CDATA[setOptions]]></code>
+    </DeprecatedMethod>
     <PossiblyUnusedMethod>
       <code><![CDATA[staticUcaseFilter]]></code>
     </PossiblyUnusedMethod>
