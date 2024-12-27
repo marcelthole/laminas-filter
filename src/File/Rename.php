@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Laminas\Filter\File;
 
-use Laminas\Filter;
 use Laminas\Filter\Exception;
-use Laminas\Stdlib\ArrayUtils;
-use Traversable;
+use Laminas\Filter\FilterInterface;
 
+use function array_key_exists;
 use function basename;
 use function count;
 use function file_exists;
@@ -29,146 +28,30 @@ use const DIRECTORY_SEPARATOR;
 
 /**
  * @psalm-type Options = array{
- *     file?: array{source?: string, target?: string, overwrite?: bool, randomize?: bool},
- *     ...
+ *     target: string,
+ *     source?: string,
+ *     overwrite?: bool,
+ *     randomize?: bool,
  * }
  * @template TOptions of Options
- * @template-extends Filter\AbstractFilter<TOptions>
+ * @implements FilterInterface<mixed>
  */
-final class Rename extends Filter\AbstractFilter
+final class Rename implements FilterInterface
 {
     /**
      * Internal array of array(source, target, overwrite)
      *
      * @var list<array{source: string, target: string, overwrite: bool, randomize: bool}>
      */
-    protected $files = [];
+    private array $files = [];
 
     /**
-     * Options argument may be either a string, a Laminas\Config\Config object, or an array.
-     * If an array or Laminas\Config\Config object, it accepts the following keys:
-     * 'source'    => Source filename or directory which will be renamed
-     * 'target'    => Target filename or directory, the new name of the source file
-     * 'overwrite' => Shall existing files be overwritten ?
-     * 'randomize' => Shall target files have a random postfix attached?
-     *
-     * @param  string|array|Traversable $options Target file or directory to be renamed
+     * @param  Options|list<Options> $options
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
-        if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
-        } elseif (is_string($options)) {
-            $options = ['target' => $options];
-        } elseif (! is_array($options)) {
-            throw new Exception\InvalidArgumentException(
-                'Invalid options argument provided to filter'
-            );
-        }
-
-        $this->setFile($options);
-    }
-
-    /**
-     * Returns the files to rename and their new name and location
-     *
-     * @return list<array{source: string, target: string, overwrite: bool, randomize: bool}>
-     */
-    public function getFile()
-    {
-        return $this->files;
-    }
-
-    /**
-     * Sets a new file or directory as target, deleting existing ones
-     *
-     * Array accepts the following keys:
-     * 'source'    => Source filename or directory which will be renamed
-     * 'target'    => Target filename or directory, the new name of the sourcefile
-     * 'overwrite' => Shall existing files be overwritten?
-     * 'randomize' => Shall target files have a random postfix attached?
-     *
-     * @param  string|array{source?: string, target?: string, overwrite?: bool, randomize?: bool} $options
-     * @return self
-     */
-    public function setFile($options)
-    {
-        $this->files = [];
-        $this->addFile($options);
-
-        return $this;
-    }
-
-    /**
-     * Adds a new file or directory as target to the existing ones
-     *
-     * Array accepts the following keys:
-     * 'source'    => Source filename or directory which will be renamed
-     * 'target'    => Target filename or directory, the new name of the sourcefile
-     * 'overwrite' => Shall existing files be overwritten?
-     * 'randomize' => Shall target files have a random postfix attached?
-     *
-     * @param  string|array{source?: string, target?: string, overwrite?: bool, randomize?: bool} $options $options
-     * @return Rename
-     * @throws Exception\InvalidArgumentException
-     */
-    public function addFile($options)
-    {
-        if (is_string($options)) {
-            $options = ['target' => $options];
-        } elseif (! is_array($options)) {
-            throw new Exception\InvalidArgumentException(
-                'Invalid options to rename filter provided'
-            );
-        }
-
-        $this->_convertOptions($options);
-
-        return $this;
-    }
-
-    /**
-     * Returns only the new filename without moving it
-     * But existing files will be erased when the overwrite option is true
-     *
-     * @param  string  $value  Full path of file to change
-     * @param  bool $source Return internal information
-     * @return string The new filename which has been set
-     * @throws Exception\InvalidArgumentException If the target file already exists.
-     */
-    public function getNewName($value, $source = false)
-    {
-        $file = $this->_getFileName($value);
-        if (! is_array($file)) {
-            return $file;
-        }
-
-        if ($file['source'] === $file['target']) {
-            return $value;
-        }
-
-        if (! file_exists($file['source'])) {
-            return $value;
-        }
-
-        if ($file['overwrite'] && file_exists($file['target'])) {
-            unlink($file['target']);
-        }
-
-        if (file_exists($file['target'])) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                '"File "%s" could not be renamed to "%s"; target file already exists',
-                $value,
-                realpath($file['target'])
-            ));
-        }
-
-        if ($source) {
-            return $file;
-        }
-
-        return $file['target'];
+        $this->convertOptions($options);
     }
 
     /**
@@ -199,7 +82,7 @@ final class Rename extends Filter\AbstractFilter
             $value        = $value['tmp_name'];
         }
 
-        $file = $this->getNewName((string) $value, true);
+        $file = $this->getNewName((string) $value);
         if (is_string($file)) {
             if ($isFileUpload) {
                 return $uploadData;
@@ -227,26 +110,26 @@ final class Rename extends Filter\AbstractFilter
         return $file['target'];
     }
 
+    public function __invoke(mixed $value): mixed
+    {
+        return $this->filter($value);
+    }
+
     /**
      * Internal method for creating the file array
      * Supports single and nested arrays
-     *
-     * @param  array $options
-     * @return $this
      */
-    // @codingStandardsIgnoreStart
-    protected function _convertOptions($options)
+    private function convertOptions(array $options): void
     {
-        // @codingStandardsIgnoreEnd
         $files = [];
         foreach ($options as $key => $value) {
             if (is_array($value)) {
-                $this->_convertOptions($value);
+                $this->convertOptions($value);
                 continue;
             }
 
             switch ($key) {
-                case "source":
+                case 'source':
                     $files['source'] = (string) $value;
                     break;
 
@@ -268,7 +151,7 @@ final class Rename extends Filter\AbstractFilter
         }
 
         if ($files === []) {
-            return $this;
+            return;
         }
 
         if (! is_string($files['source'] ?? null)) {
@@ -299,21 +182,14 @@ final class Rename extends Filter\AbstractFilter
             $count               = count($this->files);
             $this->files[$count] = $files;
         }
-
-        return $this;
     }
 
     /**
      * Internal method to resolve the requested source
      * and return all other related parameters
-     *
-     * @param  string $file Filename to get the information for
-     * @return array|string
      */
-    // @codingStandardsIgnoreStart
-    protected function _getFileName($file)
+    private function getFileName(string $file): array
     {
-        // @codingStandardsIgnoreEnd
         $rename = [];
         foreach ($this->files as $value) {
             if ($value['source'] === '*') {
@@ -330,7 +206,7 @@ final class Rename extends Filter\AbstractFilter
         }
 
         if (! isset($rename['source'])) {
-            return $file;
+            return [];
         }
 
         if (! isset($rename['target']) || $rename['target'] === '*') {
@@ -358,5 +234,42 @@ final class Rename extends Filter\AbstractFilter
         }
 
         return $rename;
+    }
+
+    /**
+     * Returns only the new filename without moving it
+     * But existing files will be erased when the overwrite option is true
+     *
+     * @throws Exception\InvalidArgumentException If the target file already exists.
+     */
+    private function getNewName(string $value): string|array
+    {
+        $file = $this->getFileName($value);
+
+        if ($file === []) {
+            return $value;
+        }
+
+        if ($file['source'] === $file['target']) {
+            return $value;
+        }
+
+        if (! array_key_exists('source', $file) || ! file_exists($file['source'])) {
+            return $value;
+        }
+
+        if ($file['overwrite'] && file_exists($file['target'])) {
+            unlink($file['target']);
+        }
+
+        if (file_exists($file['target'])) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                '"File "%s" could not be renamed to "%s"; target file already exists',
+                $value,
+                realpath($file['target'])
+            ));
+        }
+
+        return $file;
     }
 }

@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
-use Laminas\Filter\FilterInterface;
+use Laminas\Filter\Exception\InvalidArgumentException;
 use Laminas\ServiceManager\ServiceManager;
-use Laminas\Stdlib\ArrayUtils;
-use Traversable;
 
 use function array_key_exists;
 use function array_keys;
-use function array_shift;
 use function array_values;
 use function class_exists;
-use function func_get_args;
 use function is_array;
 use function is_scalar;
 use function is_string;
@@ -28,378 +24,50 @@ use function str_replace;
  * Filter chain for string inflection
  *
  * @psalm-type Options = array{
- *     target?: string,
+ *     target: string,
  *     rules?: array,
  *     throwTargetExceptionsOn?: bool,
  *     targetReplacementIdentifier?: string,
  *     pluginManager?: FilterPluginManager,
  * }
- * @extends AbstractFilter<Options>
+ * @implements FilterInterface<string>
  */
-final class Inflector extends AbstractFilter
+final class Inflector implements FilterInterface
 {
-    /** @var FilterPluginManager */
-    protected $pluginManager;
+    private readonly FilterPluginManager $pluginManager;
 
-    /** @var string */
-    protected $target;
+    private readonly string $target;
 
-    /** @var bool */
-    protected $throwTargetExceptionsOn = true;
+    private readonly bool $throwTargetExceptionsOn;
 
-    /** @var string */
-    protected $targetReplacementIdentifier = ':';
+    private readonly string $targetReplacementIdentifier;
 
-    /** @var array */
-    protected $rules = [];
+    private array $rules = [];
 
     /**
-     * @param string|array|Traversable $options Options to set
+     * @param Options $options
      */
-    public function __construct($options = null)
+    public function __construct(array $options = [])
     {
-        if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
-        }
-        if (! is_array($options)) {
-            $options = func_get_args();
-            $temp    = [];
-
-            if (! empty($options)) {
-                $temp['target'] = array_shift($options);
-            }
-
-            if (! empty($options)) {
-                $temp['rules'] = array_shift($options);
-            }
-
-            if (! empty($options)) {
-                $temp['throwTargetExceptionsOn'] = array_shift($options);
-            }
-
-            if (! empty($options)) {
-                $temp['targetReplacementIdentifier'] = array_shift($options);
-            }
-
-            $options = $temp;
-        }
-
-        $this->setOptions($options);
-    }
-
-    /**
-     * Retrieve plugin manager
-     *
-     * @return FilterPluginManager
-     */
-    public function getPluginManager()
-    {
-        if (! $this->pluginManager instanceof FilterPluginManager) {
-            $this->setPluginManager(new FilterPluginManager(new ServiceManager()));
-        }
-
-        return $this->pluginManager;
-    }
-
-    /**
-     * Set plugin manager
-     *
-     * @return self
-     */
-    public function setPluginManager(FilterPluginManager $manager)
-    {
-        $this->pluginManager = $manager;
-        return $this;
-    }
-
-    /**
-     * Set options
-     *
-     * @param  array|Options|iterable $options
-     * @return self
-     */
-    public function setOptions($options)
-    {
-        if ($options instanceof Traversable) {
-            $options = ArrayUtils::iteratorToArray($options);
-        }
-
-        // Set plugin manager
         if (array_key_exists('pluginManager', $options)) {
             if (is_scalar($options['pluginManager']) && class_exists($options['pluginManager'])) {
                 $options['pluginManager'] = new $options['pluginManager']();
             }
-            $this->setPluginManager($options['pluginManager']);
+            $this->pluginManager = $options['pluginManager'];
+        } else {
+            $this->pluginManager = new FilterPluginManager(new ServiceManager());
         }
 
-        if (array_key_exists('throwTargetExceptionsOn', $options)) {
-            $this->setThrowTargetExceptionsOn($options['throwTargetExceptionsOn']);
+        $this->throwTargetExceptionsOn     = $options['throwTargetExceptionsOn'] ?? true;
+        $this->targetReplacementIdentifier = $options['targetReplacementIdentifier'] ?? ':';
+        if (! array_key_exists('target', $options)) {
+            throw new InvalidArgumentException('The target option is required.');
         }
-
-        if (array_key_exists('targetReplacementIdentifier', $options)) {
-            $this->setTargetReplacementIdentifier($options['targetReplacementIdentifier']);
-        }
-
-        if (array_key_exists('target', $options)) {
-            $this->setTarget($options['target']);
-        }
+        $this->target = $options['target'];
 
         if (array_key_exists('rules', $options)) {
             $this->addRules($options['rules']);
         }
-
-        return $this;
-    }
-
-    /**
-     * Set Whether or not the inflector should throw an exception when a replacement
-     * identifier is still found within an inflected target.
-     *
-     * @param  bool $throwTargetExceptionsOn
-     * @return self
-     */
-    public function setThrowTargetExceptionsOn($throwTargetExceptionsOn)
-    {
-        $this->throwTargetExceptionsOn = (bool) $throwTargetExceptionsOn;
-        return $this;
-    }
-
-    /**
-     * Will exceptions be thrown?
-     *
-     * @return bool
-     */
-    public function isThrowTargetExceptionsOn()
-    {
-        return $this->throwTargetExceptionsOn;
-    }
-
-    /**
-     * Set the Target Replacement Identifier, by default ':'
-     *
-     * @param  string $targetReplacementIdentifier
-     * @return self
-     */
-    public function setTargetReplacementIdentifier($targetReplacementIdentifier)
-    {
-        if ($targetReplacementIdentifier) {
-            $this->targetReplacementIdentifier = (string) $targetReplacementIdentifier;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get Target Replacement Identifier
-     *
-     * @return string
-     */
-    public function getTargetReplacementIdentifier()
-    {
-        return $this->targetReplacementIdentifier;
-    }
-
-    /**
-     * Set a Target
-     * ex: 'scripts/:controller/:action.:suffix'
-     *
-     * @param  string $target
-     * @return self
-     */
-    public function setTarget($target)
-    {
-        $this->target = (string) $target;
-        return $this;
-    }
-
-    /**
-     * Retrieve target
-     *
-     * @return string
-     */
-    public function getTarget()
-    {
-        return $this->target;
-    }
-
-    /**
-     * Set Target Reference
-     *
-     * @param  string $target
-     * @return self
-     */
-    public function setTargetReference(&$target)
-    {
-        $this->target = &$target;
-        return $this;
-    }
-
-    /**
-     * Is the same as calling addRules() with the exception that it
-     * clears the rules before adding them.
-     *
-     * @return self
-     */
-    public function setRules(array $rules)
-    {
-        $this->clearRules();
-        $this->addRules($rules);
-        return $this;
-    }
-
-    /**
-     * Multi-call to setting filter rules.
-     *
-     * If prefixed with a ":" (colon), a filter rule will be added.  If not
-     * prefixed, a static replacement will be added.
-     *
-     * ex:
-     * array(
-     *     ':controller' => array('CamelCaseToUnderscore', 'StringToLower'),
-     *     ':action'     => array('CamelCaseToUnderscore', 'StringToLower'),
-     *     'suffix'      => 'phtml'
-     *     );
-     *
-     * @return self
-     */
-    public function addRules(array $rules)
-    {
-        $keys = array_keys($rules);
-        foreach ($keys as $spec) {
-            if ($spec[0] === ':') {
-                $this->addFilterRule($spec, $rules[$spec]);
-            } else {
-                $this->setStaticRule($spec, $rules[$spec]);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get rules
-     *
-     * By default, returns all rules. If a $spec is provided, will return those
-     * rules if found, false otherwise.
-     *
-     * @param  string $spec
-     * @return array|false
-     */
-    public function getRules($spec = null)
-    {
-        if (null !== $spec) {
-            $spec = $this->_normalizeSpec($spec);
-            if (isset($this->rules[$spec])) {
-                return $this->rules[$spec];
-            }
-            return false;
-        }
-
-        return $this->rules;
-    }
-
-    /**
-     * Returns a rule set by setFilterRule(), a numeric index must be provided
-     *
-     * @param  string $spec
-     * @param  int $index
-     * @return FilterInterface|false
-     */
-    public function getRule($spec, $index)
-    {
-        $spec = $this->_normalizeSpec($spec);
-        if (isset($this->rules[$spec]) && is_array($this->rules[$spec])) {
-            if (isset($this->rules[$spec][$index])) {
-                return $this->rules[$spec][$index];
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Clears the rules currently in the inflector
-     *
-     * @return self
-     */
-    public function clearRules()
-    {
-        $this->rules = [];
-        return $this;
-    }
-
-    /**
-     * Set a filtering rule for a spec.  $ruleSet can be a string, Filter object
-     * or an array of strings or filter objects.
-     *
-     * @param  string $spec
-     * @param array|string|FilterInterface $ruleSet
-     * @return self
-     */
-    public function setFilterRule($spec, $ruleSet)
-    {
-        $spec               = $this->_normalizeSpec($spec);
-        $this->rules[$spec] = [];
-        return $this->addFilterRule($spec, $ruleSet);
-    }
-
-    /**
-     * Add a filter rule for a spec
-     *
-     * @return self
-     */
-    public function addFilterRule(mixed $spec, mixed $ruleSet)
-    {
-        $spec = $this->_normalizeSpec($spec);
-        if (! isset($this->rules[$spec])) {
-            $this->rules[$spec] = [];
-        }
-
-        if (! is_array($ruleSet)) {
-            $ruleSet = [$ruleSet];
-        }
-
-        if (is_string($this->rules[$spec])) {
-            $temp                 = $this->rules[$spec];
-            $this->rules[$spec]   = [];
-            $this->rules[$spec][] = $temp;
-        }
-
-        foreach ($ruleSet as $rule) {
-            $this->rules[$spec][] = $this->_getRule($rule);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set a static rule for a spec.  This is a single string value
-     *
-     * @param  string $name
-     * @param  string $value
-     * @return self
-     */
-    public function setStaticRule($name, $value)
-    {
-        $name               = $this->_normalizeSpec($name);
-        $this->rules[$name] = (string) $value;
-        return $this;
-    }
-
-    /**
-     * Set Static Rule Reference.
-     *
-     * This allows a consuming class to pass a property or variable
-     * in to be referenced when its time to build the output string from the
-     * target.
-     *
-     * @param  string $name
-     * @return self
-     */
-    public function setStaticRuleReference($name, mixed &$reference)
-    {
-        $name               = $this->_normalizeSpec($name);
-        $this->rules[$name] = &$reference;
-        return $this;
     }
 
     /**
@@ -465,34 +133,85 @@ final class Inflector extends AbstractFilter
         return $inflectedTarget;
     }
 
-    /**
-     * Normalize spec string
-     *
-     * @param  string $spec
-     * @return string
-     */
-    // @codingStandardsIgnoreStart
-    protected function _normalizeSpec($spec)
+    public function __invoke(mixed $value): mixed
     {
-        // @codingStandardsIgnoreEnd
-        return ltrim((string) $spec, ':&');
+        return $this->filter($value);
+    }
+
+    private function normalizeSpec(string $spec): string
+    {
+        return ltrim($spec, ':&');
     }
 
     /**
      * Resolve named filters and convert them to filter objects.
-     *
-     * @param  string $rule
-     * @return FilterInterface|callable(mixed): mixed
      */
-    // @codingStandardsIgnoreStart
-    protected function _getRule($rule)
+    private function getRule(string $rule): FilterInterface
     {
-        // @codingStandardsIgnoreEnd
-        if ($rule instanceof FilterInterface) {
-            return $rule;
+        return $this->pluginManager->get($rule);
+    }
+
+    /**
+     * Multi-call to setting filter rules.
+     *
+     * If prefixed with a ":" (colon), a filter rule will be added.  If not
+     * prefixed, a static replacement will be added.
+     *
+     * ex:
+     * array(
+     *     ':controller' => array('CamelCaseToUnderscore', 'StringToLower'),
+     *     ':action'     => array('CamelCaseToUnderscore', 'StringToLower'),
+     *     'suffix'      => 'phtml'
+     *     );
+     */
+    private function addRules(array $rules): self
+    {
+        $keys = array_keys($rules);
+        foreach ($keys as $spec) {
+            if ($spec[0] === ':') {
+                $this->addFilterRule($spec, $rules[$spec]);
+            } else {
+                $this->setStaticRule($spec, $rules[$spec]);
+            }
         }
 
-        $rule = (string) $rule;
-        return $this->getPluginManager()->get($rule);
+        return $this;
+    }
+
+    /**
+     * Add a filter rule for a spec
+     */
+    private function addFilterRule(mixed $spec, mixed $ruleSet): self
+    {
+        $spec = $this->normalizeSpec($spec);
+        if (! isset($this->rules[$spec])) {
+            $this->rules[$spec] = [];
+        }
+
+        if (! is_array($ruleSet)) {
+            $ruleSet = [$ruleSet];
+        }
+
+        if (is_string($this->rules[$spec])) {
+            $temp                 = $this->rules[$spec];
+            $this->rules[$spec]   = [];
+            $this->rules[$spec][] = $temp;
+        }
+
+        foreach ($ruleSet as $rule) {
+            $this->rules[$spec][] = $this->getRule($rule);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set a static rule for a spec.  This is a single string value
+     */
+    private function setStaticRule(string $name, string $value): self
+    {
+        $name               = $this->normalizeSpec($name);
+        $this->rules[$name] = $value;
+        return $this;
     }
 }

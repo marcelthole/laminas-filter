@@ -12,7 +12,6 @@ use function str_replace;
 /**
  * @psalm-type Options = array{
  *     separator?: string,
- *     ...
  * }
  * @template TOptions of Options
  * @implements FilterInterface<string|array<array-key, string|mixed>>

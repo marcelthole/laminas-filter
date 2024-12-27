@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\Filter\File;
 
-use Laminas\Filter\Exception;
 use Laminas\Filter\File\Rename as FileRename;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -15,7 +14,6 @@ use function dirname;
 use function file_exists;
 use function is_dir;
 use function mkdir;
-use function preg_quote;
 use function rmdir;
 use function sprintf;
 use function sys_get_temp_dir;
@@ -83,19 +81,7 @@ class RenameTest extends TestCase
      */
     public function testConstructSingleValue(): void
     {
-        $filter = new FileRename($this->newFile);
-
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
+        $filter = new FileRename(['target' => $this->newFile]);
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -105,19 +91,7 @@ class RenameTest extends TestCase
      */
     public function testConstructSingleValueWithFilesArray(): void
     {
-        $filter = new FileRename($this->newFile);
-
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
+        $filter = new FileRename(['target' => $this->newFile]);
         self::assertSame(
             ['tmp_name' => $this->newFile],
             $filter(['tmp_name' => $this->oldFile])
@@ -135,17 +109,6 @@ class RenameTest extends TestCase
             'target' => $this->newFile,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -163,17 +126,6 @@ class RenameTest extends TestCase
             'unknown'   => false,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => true,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -190,17 +142,6 @@ class RenameTest extends TestCase
             ],
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -214,17 +155,6 @@ class RenameTest extends TestCase
             'source' => $this->oldFile,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->oldFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -238,17 +168,6 @@ class RenameTest extends TestCase
             'target' => $this->newFile,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -258,19 +177,8 @@ class RenameTest extends TestCase
      */
     public function testConstructSingleDirectory(): void
     {
-        $filter = new FileRename($this->newDir);
+        $filter = new FileRename(['target' => $this->newDir]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newDir,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newDirFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -285,17 +193,6 @@ class RenameTest extends TestCase
             'target' => $this->newDir,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newDirFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -312,17 +209,6 @@ class RenameTest extends TestCase
             ],
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newDirFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -336,17 +222,6 @@ class RenameTest extends TestCase
             'target' => $this->newDir,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newDir,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newDirFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
@@ -355,184 +230,19 @@ class RenameTest extends TestCase
     {
         $filter = new FileRename([
             'source' => $this->oldFile,
-            'target' => $this->newDir,
-        ]);
-
-        $filter->addFile([
-            'source' => $this->oldFile,
             'target' => $this->newFile,
         ]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    public function testGetNewName(): void
-    {
-        $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newDir,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newDirFile, $filter->getNewName($this->oldFile));
-    }
-
-    public function testGetNewNameExceptionWithExistingFile(): void
-    {
-        $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newFile,
-        ]);
-
-        copy($this->oldFile, $this->newFile);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('could not be renamed');
-        self::assertSame($this->newFile, $filter->getNewName($this->oldFile));
-    }
-
-    public function testGetNewNameOverwriteWithExistingFile(): void
-    {
-        $filter = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $this->newFile,
-            'overwrite' => true,
-        ]);
-
-        copy($this->oldFile, $this->newFile);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'overwrite' => true,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter->getNewName($this->oldFile));
-    }
-
-    public function testGetRandomizedFile(): void
-    {
-        $filter = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $this->newFile,
-            'randomize' => true,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
-                    'randomize' => true,
-                    'overwrite' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        $fileNoExt = $this->tmpPath . DIRECTORY_SEPARATOR . 'newfile';
-        self::assertMatchesRegularExpression(
-            '#' . preg_quote($fileNoExt) . '_.{13}\.xml#',
-            $filter->getNewName($this->oldFile)
-        );
-    }
-
-    public function testGetRandomizedFileWithoutExtension(): void
-    {
-        $fileNoExt = $this->tmpPath . DIRECTORY_SEPARATOR . 'newfile';
-        $filter    = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $fileNoExt,
-            'randomize' => true,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $fileNoExt,
-                    'randomize' => true,
-                    'overwrite' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertMatchesRegularExpression(
-            '#' . preg_quote($fileNoExt) . '_.{13}#',
-            $filter->getNewName($this->oldFile)
-        );
     }
 
     public function testAddFileWithString(): void
     {
-        $filter = new FileRename($this->oldFile);
-        $filter->addFile($this->newFile);
+        $filter = new FileRename(['target' => $this->newFile]);
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
         self::assertSame($this->newFile, $filter($this->oldFile));
         self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    public function testAddFileWithInvalidOption(): void
-    {
-        $filter = new FileRename($this->oldFile);
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid options');
-        $filter->addFile(1234);
-    }
-
-    public function testInvalidConstruction(): void
-    {
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid options');
-        new FileRename(1234);
     }
 
     /** @return list<array{0: mixed}> */
@@ -559,7 +269,7 @@ class RenameTest extends TestCase
     #[DataProvider('returnUnfilteredDataProvider')]
     public function testReturnUnfiltered(mixed $input): void
     {
-        $filter = new FileRename($this->newFile);
+        $filter = new FileRename(['target' => $this->newFile]);
 
         self::assertSame($input, $filter($input));
     }
