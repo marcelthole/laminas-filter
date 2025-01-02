@@ -124,7 +124,7 @@ class FilterChainTest extends TestCase
             'filters'   => [
                 [
                     'name'     => StripTags::class,
-                    'options'  => ['allowTags' => 'img', 'allowAttribs' => 'id'],
+                    'options'  => ['allowTags' => ['img'], 'allowAttribs' => ['id']],
                     'priority' => 10100,
                 ],
             ],
