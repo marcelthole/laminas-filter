@@ -21,7 +21,7 @@ use function trim;
 
 /**
  * @psalm-type Options = array{
- *     allowTags?: array<string|list<string>>,
+ *     allowTags?: list<string>|array<string, list<string>>,
  *     allowAttribs?: list<string>
  * }
  * @implements FilterInterface<string>
@@ -60,8 +60,6 @@ final class StripTags implements FilterInterface
      * Defined by Laminas\Filter\FilterInterface
      *
      * If the value provided is non-scalar, the value will remain unfiltered
-     *
-     * @psalm-return ($value is scalar ? string : mixed)
      */
     public function filter(mixed $value): mixed
     {
@@ -117,6 +115,9 @@ final class StripTags implements FilterInterface
         return $this->filter($value);
     }
 
+    /**
+     * @param array<string|list<string>> $tagsAllowed
+     */
     private function setTagsAllowed(array $tagsAllowed): void
     {
         foreach ($tagsAllowed as $index => $element) {
@@ -126,22 +127,16 @@ final class StripTags implements FilterInterface
                 $tagName = strtolower($element);
                 // Store the tag as allowed with no attributes
                 $this->tagsAllowed[$tagName] = [];
-            } elseif (is_string($index) && (is_array($element) || is_string($element))) {
+            } elseif (is_string($index) && is_array($element)) {
                 // Otherwise, if a tag was provided with attributes
                 // Canonicalize the tag name
                 $tagName = strtolower($index);
-                // Canonicalize the attributes
-                if (is_string($element)) {
-                    $element = [$element];
-                }
                 // Store the tag as allowed with the provided attributes
                 $this->tagsAllowed[$tagName] = [];
                 foreach ($element as $attribute) {
-                    if (is_string($attribute)) {
-                        // Canonicalize the attribute name
-                        $attributeName                               = strtolower($attribute);
-                        $this->tagsAllowed[$tagName][$attributeName] = null;
-                    }
+                    // Canonicalize the attribute name
+                    $attributeName                               = strtolower($attribute);
+                    $this->tagsAllowed[$tagName][$attributeName] = null;
                 }
             }
         }
@@ -154,11 +149,9 @@ final class StripTags implements FilterInterface
     {
         // Store each attribute as allowed
         foreach ($attributesAllowed as $attribute) {
-            if (is_string($attribute)) {
-                // Canonicalize the attribute name
-                $attributeName                           = strtolower($attribute);
-                $this->attributesAllowed[$attributeName] = null;
-            }
+            // Canonicalize the attribute name
+            $attributeName                           = strtolower($attribute);
+            $this->attributesAllowed[$attributeName] = null;
         }
     }
 

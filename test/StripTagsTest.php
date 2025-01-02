@@ -123,7 +123,7 @@ class StripTagsTest extends TestCase
     public function testFilterTagAllowedAttributeAllowed(): void
     {
         $filter   = new StripTagsFilter([
-            'allowTags' => ['img' => 'alt'],
+            'allowTags' => ['img' => ['alt']],
         ]);
         $input    = '<IMG ALT="FOO" />';
         $expected = '<img alt="FOO" />';
@@ -138,7 +138,7 @@ class StripTagsTest extends TestCase
     public function testFilterTagAllowedAttributeAllowedGt(): void
     {
         $filter   = new StripTagsFilter([
-            'allowTags' => ['img' => 'alt'],
+            'allowTags' => ['img' => ['alt']],
         ]);
         $input    = '<img alt="$object->property" />';
         $expected = '<img>property" /';
@@ -151,7 +151,7 @@ class StripTagsTest extends TestCase
     public function testFilterTagAllowedAttributeAllowedGtEscaped(): void
     {
         $filter   = new StripTagsFilter([
-            'allowTags' => ['img' => 'alt'],
+            'allowTags' => ['img' => ['alt']],
         ]);
         $input    = '<img alt="$object-&gt;property" />';
         $expected = '<img alt="$object-&gt;property" />';
@@ -242,7 +242,7 @@ class StripTagsTest extends TestCase
     {
         $filter   = new StripTagsFilter([
             'allowTags' => [
-                'a' => 'href',
+                'a' => ['href'],
             ],
         ]);
         $input    = '<a href="Some &gt; Text">';
@@ -259,7 +259,7 @@ class StripTagsTest extends TestCase
     {
         $filter = new StripTagsFilter([
             'allowTags' => [
-                'element' => 'attribute',
+                'element' => ['attribute'],
             ],
         ]);
         $input  = '<element attribute="a=">contents</element>';

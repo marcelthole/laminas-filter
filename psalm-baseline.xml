@@ -319,29 +319,6 @@
       <code><![CDATA[Module]]></code>
     </UnusedClass>
   </file>
-  <file src="src/StripTags.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <MixedArgument>
-      <code><![CDATA[$options['allowAttribs']]]></code>
-      <code><![CDATA[$options['allowTags']]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$attribute]]></code>
-      <code><![CDATA[$element]]></code>
-      <code><![CDATA[$temp['allowAttribs']]]></code>
-      <code><![CDATA[$temp['allowComments']]]></code>
-      <code><![CDATA[$temp['allowTags']]]></code>
-    </MixedAssignment>
-    <PossiblyUndefinedVariable>
-      <code><![CDATA[$temp]]></code>
-    </PossiblyUndefinedVariable>
-    <RedundantConditionGivenDocblockType>
-      <code><![CDATA[is_array($options)]]></code>
-      <code><![CDATA[is_string($attribute)]]></code>
-    </RedundantConditionGivenDocblockType>
-  </file>
   <file src="src/Word/SeparatorToCamelCase.php">
     <MissingClosureParamType>
       <code><![CDATA[$matches]]></code>
@@ -448,13 +425,5 @@
       <code><![CDATA[$rule]]></code>
       <code><![CDATA[$target]]></code>
     </UnusedVariable>
-  </file>
-  <file src="test/StripTagsTest.php">
-    <MixedArgument>
-      <code><![CDATA[$filtered]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$filtered]]></code>
-    </MixedAssignment>
   </file>
 </files>
