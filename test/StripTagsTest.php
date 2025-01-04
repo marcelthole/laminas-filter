@@ -271,7 +271,7 @@ class StripTagsTest extends TestCase
     {
         $filter   = new StripTagsFilter([
             'allowTags' => [
-                'a' => 'href',
+                'a' => ['href'],
             ],
         ]);
         $input    = '<a href="https://getlaminas.org/issues" onclick

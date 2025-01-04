@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Laminas\Filter;
 
-use function array_key_exists;
-use function is_array;
-use function is_int;
+use function array_change_key_case;
+use function array_combine;
+use function array_fill;
+use function array_is_list;
+use function array_map;
+use function array_merge;
+use function count;
+use function in_array;
 use function is_scalar;
-use function is_string;
 use function preg_match;
 use function preg_match_all;
+use function sprintf;
 use function str_contains;
 use function str_replace;
 use function strlen;
@@ -18,6 +23,8 @@ use function strpos;
 use function strtolower;
 use function substr;
 use function trim;
+
+use const CASE_LOWER;
 
 /**
  * @psalm-type Options = array{
@@ -34,26 +41,51 @@ final class StripTags implements FilterInterface
      * Tags are stored in the array keys, and the array values are themselves
      * arrays of the attributes allowed for the corresponding tag.
      *
-     * @var array<string, array<string, null>>
+     * @var array<string, list<string>>
      */
-    private array $tagsAllowed = [];
+    private readonly array $tagsAllowed;
 
     /**
      * Array of allowed attributes for all allowed tags
      *
      * Attributes stored here are allowed for all of the allowed tags.
      *
-     * @var array<string, null>
+     * @var list<string>
      */
-    private array $attributesAllowed = [];
+    private readonly array $attributesAllowed;
 
     /**
      * @param Options $options
      */
     public function __construct(array $options = [])
     {
-        $this->setTagsAllowed($options['allowTags'] ?? []);
-        $this->setAttributesAllowed($options['allowAttribs'] ?? []);
+        $this->attributesAllowed = array_map(
+            static fn (string $attribute): string => strtolower($attribute),
+            $options['allowAttribs'] ?? [],
+        );
+
+        $tagsAllowed = $options['allowTags'] ?? [];
+
+        if (array_is_list($tagsAllowed)) {
+            /** @psalm-var list<string> $tagsAllowed */
+            $tags = array_map(
+                static fn (string $tag): string => strtolower($tag),
+                $tagsAllowed,
+            );
+
+            $this->tagsAllowed = array_combine($tags, array_fill(0, count($tags), []));
+
+            return;
+        }
+
+        /** @psalm-var array<string, list<string>> $tagsAllowed */
+        $this->tagsAllowed = array_map(
+            static fn (array $attributes) => array_map(
+                static fn (string $attribute): string => strtolower($attribute),
+                $attributes,
+            ),
+            array_change_key_case($tagsAllowed, CASE_LOWER),
+        );
     }
 
     /**
@@ -116,51 +148,10 @@ final class StripTags implements FilterInterface
     }
 
     /**
-     * @param array<string|list<string>> $tagsAllowed
-     */
-    private function setTagsAllowed(array $tagsAllowed): void
-    {
-        foreach ($tagsAllowed as $index => $element) {
-            // If the tag was provided without attributes
-            if (is_int($index) && is_string($element)) {
-                // Canonicalize the tag name
-                $tagName = strtolower($element);
-                // Store the tag as allowed with no attributes
-                $this->tagsAllowed[$tagName] = [];
-            } elseif (is_string($index) && is_array($element)) {
-                // Otherwise, if a tag was provided with attributes
-                // Canonicalize the tag name
-                $tagName = strtolower($index);
-                // Store the tag as allowed with the provided attributes
-                $this->tagsAllowed[$tagName] = [];
-                foreach ($element as $attribute) {
-                    // Canonicalize the attribute name
-                    $attributeName                               = strtolower($attribute);
-                    $this->tagsAllowed[$tagName][$attributeName] = null;
-                }
-            }
-        }
-    }
-
-    /**
-     * @param  list<string> $attributesAllowed
-     */
-    private function setAttributesAllowed(array $attributesAllowed): void
-    {
-        // Store each attribute as allowed
-        foreach ($attributesAllowed as $attribute) {
-            // Canonicalize the attribute name
-            $attributeName                           = strtolower($attribute);
-            $this->attributesAllowed[$attributeName] = null;
-        }
-    }
-
-    /**
      * Filters a single tag against the current option settings
      */
     private function filterTag(string $tag): string
     {
-        // @codingStandardsIgnoreEnd
         // Parse the tag into:
         // 1. a starting delimiter (mandatory)
         // 2. a tag name (if available)
@@ -184,6 +175,11 @@ final class StripTags implements FilterInterface
             return '';
         }
 
+        $allowedAttributes = array_merge(
+            $this->attributesAllowed,
+            $this->tagsAllowed[$tagName],
+        );
+
         // Trim the attribute string of whitespace at the ends
         $tagAttributes = trim($tagAttributes);
 
@@ -202,15 +198,18 @@ final class StripTags implements FilterInterface
                 $attributeValue     = $matches[3][$index] === '' ? $matches[5][$index] : $matches[3][$index];
 
                 // If the attribute is not allowed, then remove it entirely
-                if (
-                    ! array_key_exists($attributeName, $this->tagsAllowed[$tagName])
-                    && ! array_key_exists($attributeName, $this->attributesAllowed)
-                ) {
+                if (! in_array($attributeName, $allowedAttributes, true)) {
                     continue;
                 }
+
                 // Add the attribute to the accumulator
-                $tagAttributes .= " $attributeName=" . $attributeDelimiter
-                                . $attributeValue . $attributeDelimiter;
+                $tagAttributes .= sprintf(
+                    ' %s=%s%s%s',
+                    $attributeName,
+                    $attributeDelimiter,
+                    $attributeValue,
+                    $attributeDelimiter,
+                );
             }
         }
 
