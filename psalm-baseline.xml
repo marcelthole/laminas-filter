@@ -2055,6 +2055,8 @@
       <code><![CDATA[1234]]></code>
     </InvalidArgument>
     <PossiblyUnusedMethod>
+      <code><![CDATA[returnInvalidFilterInputProvider]]></code>
+      <code><![CDATA[returnValidFilterInputProvider]]></code>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
   </file>
