@@ -1249,6 +1249,20 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedMethod>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setEncoding]]></code>
+      <code><![CDATA[setEncoding]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+    </DeprecatedMethod>
     <DocblockTypeContradiction>
       <code><![CDATA[is_array($options)]]></code>
     </DocblockTypeContradiction>
@@ -2061,8 +2075,8 @@
     </InvalidArgument>
     <PossiblyUnusedMethod>
       <code><![CDATA[returnInvalidFilterInputProvider]]></code>
-      <code><![CDATA[returnValidFilterInputProvider]]></code>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
+      <code><![CDATA[returnValidFilterInputProvider]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="test/File/RenameUploadTest.php">
@@ -2134,6 +2148,25 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/HtmlEntitiesTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getCharSet]]></code>
+      <code><![CDATA[getCharSet]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[setCharSet]]></code>
+      <code><![CDATA[setCharSet]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+    </DeprecatedMethod>
     <PossiblyUnusedMethod>
       <code><![CDATA[returnUnfilteredDataProvider]]></code>
     </PossiblyUnusedMethod>
