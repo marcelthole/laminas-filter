@@ -11,9 +11,8 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 
 use function copy;
-use function dirname;
 use function file_exists;
-use function is_dir;
+use function is_array;
 use function mkdir;
 use function preg_quote;
 use function rmdir;
@@ -26,393 +25,327 @@ use const DIRECTORY_SEPARATOR;
 
 class RenameTest extends TestCase
 {
-    private string $tmpPath;
-    private string $origFile;
-    private string $oldFile;
-    private string $newFile;
-    private string $newDir;
-    private string $newDirFile;
+    private const TEST_FILE_NAME = 'test_file.txt';
 
-    /**
-     * Sets the path to test files
-     */
-    public function setUp(): void
+    private static ?string $tmpPath             = null;
+    private static ?string $tmpSubDirectoryPath = null;
+
+    private static function getTempPath(): string
     {
-        $control       = sprintf('%s/_files/testfile.txt', dirname(__DIR__));
-        $this->tmpPath = sprintf('%s%s%s', sys_get_temp_dir(), DIRECTORY_SEPARATOR, uniqid('laminasilter'));
-        mkdir($this->tmpPath, 0775, true);
+        if (self::$tmpPath === null) {
+            self::$tmpPath = sys_get_temp_dir() . '/' . uniqid('laminasfilter');
+            mkdir(self::$tmpPath, 0775, true);
+        }
 
-        $this->oldFile    = sprintf('%s%stestfile.txt', $this->tmpPath, DIRECTORY_SEPARATOR);
-        $this->origFile   = sprintf('%s%soriginal.file', $this->tmpPath, DIRECTORY_SEPARATOR);
-        $this->newFile    = sprintf('%s%snewfile.xml', $this->tmpPath, DIRECTORY_SEPARATOR);
-        $this->newDir     = sprintf('%s%stestdir', $this->tmpPath, DIRECTORY_SEPARATOR);
-        $this->newDirFile = sprintf('%s%stestfile.txt', $this->newDir, DIRECTORY_SEPARATOR);
-
-        copy($control, $this->oldFile);
-        copy($control, $this->origFile);
-        mkdir($this->newDir, 0775, true);
+        return self::$tmpPath;
     }
 
-    /**
-     * Sets the path to test files
-     */
-    public function tearDown(): void
+    private static function getTempSubDirectory(): string
     {
-        if (is_dir($this->tmpPath)) {
-            if (file_exists($this->oldFile)) {
-                unlink($this->oldFile);
-            }
-            if (file_exists($this->origFile)) {
-                unlink($this->origFile);
-            }
-            if (file_exists($this->newFile)) {
-                unlink($this->newFile);
-            }
-            if (is_dir($this->newDir)) {
-                if (file_exists($this->newDirFile)) {
-                    unlink($this->newDirFile);
-                }
-                rmdir($this->newDir);
-            }
-            rmdir($this->tmpPath);
+        if (self::$tmpSubDirectoryPath === null) {
+            self::$tmpSubDirectoryPath = self::getTempPath() . '/test_dir';
+            mkdir(self::$tmpSubDirectoryPath, 0775, true);
+        }
+
+        return self::$tmpSubDirectoryPath;
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$tmpSubDirectoryPath !== null) {
+            rmdir(self::$tmpSubDirectoryPath);
+        }
+
+        if (self::$tmpPath !== null) {
+            rmdir(self::$tmpPath);
         }
     }
 
-    /**
-     * Test single parameter filter
-     */
-    public function testConstructSingleValue(): void
+    private static function createSourceFile(): void
     {
-        $filter = new FileRename($this->newFile);
+        copy(__DIR__ . '/../_files/testfile.txt', self::getTempPath() . '/' . self::TEST_FILE_NAME);
+    }
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
+    private static function cleanupSourceFile(): void
+    {
+        $fileToRemove = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        if (file_exists($fileToRemove)) {
+            unlink($fileToRemove);
+        }
+    }
+
+    public function tearDown(): void
+    {
+        self::cleanupSourceFile();
+    }
+
+    public static function returnValidFilterInputProvider(): array
+    {
+        $oldFile    = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile    = self::getTempPath() . '/new_file.xml';
+        $newDir     = self::getTempSubDirectory();
+        $newDirFile = self::getTempSubDirectory() . '/test_file.txt';
+
+        return [
+            'Configured with target file path and filtering file path'       => [
+                'options'               => $newFile,
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
                     'source'    => '*',
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => $newFile,
             ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test single parameter filter
-     */
-    public function testConstructSingleValueWithFilesArray(): void
-    {
-        $filter = new FileRename($this->newFile);
-
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
+            'Configured with target file path and filtering file path array' => [
+                'options'               => $newFile,
+                'input'                 => ['tmp_name' => $oldFile],
+                'expectedGetFileResult' => [
                     'source'    => '*',
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => ['tmp_name' => $newFile],
             ],
-            $filter->getFile()
-        );
-        self::assertSame(
-            ['tmp_name' => $this->newFile],
-            $filter(['tmp_name' => $this->oldFile])
-        );
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test single array parameter filter
-     */
-    public function testConstructSingleArray(): void
-    {
-        $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newFile,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+            'Configured with array'                                          => [
+                'options'               => ['source' => $oldFile, 'target' => $newFile],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => $newFile,
             ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test full array parameter filter
-     */
-    public function testConstructFullOptionsArray(): void
-    {
-        $filter = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $this->newFile,
-            'overwrite' => true,
-            'randomize' => false,
-            'unknown'   => false,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+            'Configured with all options set'                                => [
+                'options'               => [
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
+                    'overwrite' => true,
+                    'randomize' => false,
+                    'unknown'   => false,
+                ],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => true,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => $newFile,
             ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test single array parameter filter
-     */
-    public function testConstructDoubleArray(): void
-    {
-        $filter = new FileRename([
-            0 => [
-                'source' => $this->oldFile,
-                'target' => $this->newFile,
-            ],
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+            'Configured with array wrapped in array'                         => [
+                'options'               => [0 => ['source' => $oldFile, 'target' => $newFile]],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => $newFile,
             ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
+            'Only target configured'                                         => [
+                'options'               => ['target' => $newFile],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => '*',
+                    'target'    => $newFile,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => $newFile,
+            ],
+            'Configured with target directory and filtering file path'       => [
+                'options'               => $newDir,
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => '*',
+                    'target'    => $newDir,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => $newDirFile,
+            ],
+            'Configured with array and filtering file path'                  => [
+                'options'               => ['source' => $oldFile, 'target' => $newDir],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
+                    'target'    => $newDir,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => $newDirFile,
+            ],
+            'Configured with array wrapped in array and filtering file path' => [
+                'options'               => [0 => ['source' => $oldFile, 'target' => $newDir]],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
+                    'target'    => $newDir,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => $newDirFile,
+            ],
+            'Configured with only target and filtering file path'            => [
+                'options'               => ['target' => $newDir],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => '*',
+                    'target'    => $newDir,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => $newDirFile,
+            ],
+        ];
     }
 
-    /**
-     * Test single array parameter filter
-     */
-    public function testConstructTruncatedTarget(): void
+    public static function returnInvalidFilterInputProvider(): array
     {
-        $filter = new FileRename([
-            'source' => $this->oldFile,
-        ]);
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
 
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
+        return [
+            'Source file non-existent' => [
+                'options'               => $newFile,
+                'input'                 => 'non-existent-file.txt',
+                'expectedGetFileResult' => [
+                    'source'    => '*',
+                    'target'    => $newFile,
+                    'overwrite' => false,
+                    'randomize' => false,
+                ],
+                'expectedFilterResult'  => 'non-existent-file.txt',
+            ],
+            'Only source configured'   => [
+                'options'               => ['source' => $oldFile],
+                'input'                 => $oldFile,
+                'expectedGetFileResult' => [
+                    'source'    => $oldFile,
                     'target'    => '*',
                     'overwrite' => false,
                     'randomize' => false,
                 ],
+                'expectedFilterResult'  => $oldFile,
             ],
-            $filter->getFile()
-        );
-        self::assertSame($this->oldFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
+        ];
     }
 
-    /**
-     * Test single array parameter filter
-     */
-    public function testConstructTruncatedSource(): void
-    {
-        $filter = new FileRename([
-            'target' => $this->newFile,
-        ]);
+    #[DataProvider('returnValidFilterInputProvider')]
+    #[DataProvider('returnInvalidFilterInputProvider')]
+    public function testFilterValidPaths(
+        string|array $options,
+        string|array $input,
+        array $expectedGetFileResult,
+        string|array $expectedFilterResult
+    ): void {
+        self::createSourceFile();
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newFile,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
+        $filter = new FileRename($options);
 
-    /**
-     * Test single parameter filter by using directory only
-     */
-    public function testConstructSingleDirectory(): void
-    {
-        $filter = new FileRename($this->newDir);
+        self::assertEquals([$expectedGetFileResult], $filter->getFile());
 
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newDir,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newDirFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
+        try {
+            self::assertSame($expectedFilterResult, $filter->filter($input));
+        } finally {
+            /** @var string $fileToRemove */
+            $fileToRemove = is_array($expectedFilterResult) ? $expectedFilterResult['tmp_name'] : $expectedFilterResult;
 
-    /**
-     * Test single array parameter filter by using directory only
-     */
-    public function testConstructSingleArrayDirectory(): void
-    {
-        $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newDir,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newDirFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test single array parameter filter by using directory only
-     */
-    public function testConstructDoubleArrayDirectory(): void
-    {
-        $filter = new FileRename([
-            0 => [
-                'source' => $this->oldFile,
-                'target' => $this->newDir,
-            ],
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newDirFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    /**
-     * Test single array parameter filter by using directory only
-     */
-    public function testConstructTruncatedSourceDirectory(): void
-    {
-        $filter = new FileRename([
-            'target' => $this->newDir,
-        ]);
-
-        self::assertSame(
-            [
-                0 => [
-                    'target'    => $this->newDir,
-                    'source'    => '*',
-                    'overwrite' => false,
-                    'randomize' => false,
-                ],
-            ],
-            $filter->getFile()
-        );
-        self::assertSame($this->newDirFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
+            if (file_exists($fileToRemove)) {
+                unlink($fileToRemove);
+            }
+        }
     }
 
     public function testAddSameFileAgainAndOverwriteExistingTarget(): void
     {
+        self::createSourceFile();
+
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
+
         $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newDir,
+            'source' => $oldFile,
+            'target' => '/to-be-overwritten.xml',
         ]);
 
         $filter->addFile([
-            'source' => $this->oldFile,
-            'target' => $this->newFile,
+            'source' => $oldFile,
+            'target' => $newFile,
         ]);
 
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
             ],
             $filter->getFile()
         );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
+
+        try {
+            self::assertSame($newFile, $filter($oldFile));
+        } finally {
+            if (file_exists($newFile)) {
+                unlink($newFile);
+            }
+        }
     }
 
     public function testGetNewName(): void
     {
+        self::createSourceFile();
+
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newDir  = self::getTempSubDirectory();
+
         $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newDir,
+            'source' => $oldFile,
+            'target' => $newDir,
         ]);
 
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newDir,
+                    'source'    => $oldFile,
+                    'target'    => $newDir,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
             ],
             $filter->getFile()
         );
-        self::assertSame($this->newDirFile, $filter->getNewName($this->oldFile));
+
+        self::assertSame($newDir . '/' . self::TEST_FILE_NAME, $filter->getNewName($oldFile));
     }
 
     public function testGetNewNameExceptionWithExistingFile(): void
     {
+        self::createSourceFile();
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
+
         $filter = new FileRename([
-            'source' => $this->oldFile,
-            'target' => $this->newFile,
+            'source' => $oldFile,
+            'target' => $newFile,
         ]);
 
-        copy($this->oldFile, $this->newFile);
+        copy($oldFile, $newFile);
 
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => false,
                     'randomize' => false,
                 ],
@@ -421,64 +354,82 @@ class RenameTest extends TestCase
         );
         $this->expectException(Exception\InvalidArgumentException::class);
         $this->expectExceptionMessage('could not be renamed');
-        self::assertSame($this->newFile, $filter->getNewName($this->oldFile));
+
+        try {
+            self::assertSame($newFile, $filter->getNewName($oldFile));
+        } finally {
+            if (file_exists($newFile)) {
+                unlink($newFile);
+            }
+        }
     }
 
     public function testGetNewNameOverwriteWithExistingFile(): void
     {
+        self::createSourceFile();
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
+
         $filter = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $this->newFile,
+            'source'    => $oldFile,
+            'target'    => $newFile,
             'overwrite' => true,
         ]);
 
-        copy($this->oldFile, $this->newFile);
+        copy($oldFile, $newFile);
 
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'overwrite' => true,
                     'randomize' => false,
                 ],
             ],
             $filter->getFile()
         );
-        self::assertSame($this->newFile, $filter->getNewName($this->oldFile));
+        self::assertSame($newFile, $filter->getNewName($oldFile));
     }
 
     public function testGetRandomizedFile(): void
     {
+        self::createSourceFile();
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
+
         $filter = new FileRename([
-            'source'    => $this->oldFile,
-            'target'    => $this->newFile,
+            'source'    => $oldFile,
+            'target'    => $newFile,
             'randomize' => true,
         ]);
 
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
-                    'target'    => $this->newFile,
+                    'source'    => $oldFile,
+                    'target'    => $newFile,
                     'randomize' => true,
                     'overwrite' => false,
                 ],
             ],
             $filter->getFile()
         );
-        $fileNoExt = $this->tmpPath . DIRECTORY_SEPARATOR . 'newfile';
+        $fileNoExt = self::getTempPath() . '/new_file';
         self::assertMatchesRegularExpression(
             '#' . preg_quote($fileNoExt) . '_.{13}\.xml#',
-            $filter->getNewName($this->oldFile)
+            $filter->getNewName($oldFile)
         );
     }
 
     public function testGetRandomizedFileWithoutExtension(): void
     {
-        $fileNoExt = $this->tmpPath . DIRECTORY_SEPARATOR . 'newfile';
+        self::createSourceFile();
+
+        $oldFile   = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $fileNoExt = self::getTempPath() . '/new_file';
         $filter    = new FileRename([
-            'source'    => $this->oldFile,
+            'source'    => $oldFile,
             'target'    => $fileNoExt,
             'randomize' => true,
         ]);
@@ -486,7 +437,7 @@ class RenameTest extends TestCase
         self::assertSame(
             [
                 0 => [
-                    'source'    => $this->oldFile,
+                    'source'    => $oldFile,
                     'target'    => $fileNoExt,
                     'randomize' => true,
                     'overwrite' => false,
@@ -496,19 +447,24 @@ class RenameTest extends TestCase
         );
         self::assertMatchesRegularExpression(
             '#' . preg_quote($fileNoExt) . '_.{13}#',
-            $filter->getNewName($this->oldFile)
+            $filter->getNewName($oldFile)
         );
     }
 
     public function testAddFileWithString(): void
     {
-        $filter = new FileRename($this->oldFile);
-        $filter->addFile($this->newFile);
+        self::createSourceFile();
+
+        $oldFile = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $newFile = self::getTempPath() . '/new_file.xml';
+
+        $filter = new FileRename($oldFile);
+        $filter->addFile($newFile);
 
         self::assertSame(
             [
                 0 => [
-                    'target'    => $this->newFile,
+                    'target'    => $newFile,
                     'source'    => '*',
                     'overwrite' => false,
                     'randomize' => false,
@@ -516,13 +472,18 @@ class RenameTest extends TestCase
             ],
             $filter->getFile()
         );
-        self::assertSame($this->newFile, $filter($this->oldFile));
-        self::assertSame('falsefile', $filter('falsefile'));
+        try {
+            self::assertSame($newFile, $filter($oldFile));
+        } finally {
+            if (file_exists($newFile)) {
+                unlink($newFile);
+            }
+        }
     }
 
     public function testAddFileWithInvalidOption(): void
     {
-        $filter = new FileRename($this->oldFile);
+        $filter = new FileRename('invalid');
         $this->expectException(Exception\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid options');
         $filter->addFile(1234);
@@ -538,11 +499,8 @@ class RenameTest extends TestCase
     /** @return list<array{0: mixed}> */
     public static function returnUnfilteredDataProvider(): array
     {
-        $tmpPath = sprintf('%s%s%s', sys_get_temp_dir(), DIRECTORY_SEPARATOR, uniqid('returnUnfilteredDataProvider'));
-        mkdir($tmpPath, 0775, true);
-
-        $oldFile  = sprintf('%s%stestfile.txt', $tmpPath, DIRECTORY_SEPARATOR);
-        $origFile = sprintf('%s%soriginal.file', $tmpPath, DIRECTORY_SEPARATOR);
+        $oldFile  = self::getTempPath() . '/' . self::TEST_FILE_NAME;
+        $origFile = sprintf('%s%soriginal.file', self::getTempPath(), DIRECTORY_SEPARATOR);
 
         return [
             [null],
@@ -559,7 +517,9 @@ class RenameTest extends TestCase
     #[DataProvider('returnUnfilteredDataProvider')]
     public function testReturnUnfiltered(mixed $input): void
     {
-        $filter = new FileRename($this->newFile);
+        self::createSourceFile();
+
+        $filter = new FileRename(self::getTempPath() . '/new_file.xml');
 
         self::assertSame($input, $filter($input));
     }

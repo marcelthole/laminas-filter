@@ -1,6 +1,7 @@
 # Preparing for Version 3
 
-Version 3 will introduce a number of backwards incompatible changes. This document is intended to help you prepare for these changes.
+Version 3 will introduce a number of backwards incompatible changes.
+This document is intended to help you prepare for these changes.
 
 ## Removed Features
 
@@ -55,7 +56,8 @@ If you are currently using any of these compression formats with laminas-filter,
 
 ### Encryption & Decryption Filter Removal
 
-These filters have become outdated and will be removed in version 3.0 of this library. We recommend that you make use of a maintained encryption library and [write your own filters](../writing-filters.md) if you need to encrypt or decrypt content using the `FilterInterface` contract.
+These filters have become outdated and will be removed in version 3.0 of this library.
+We recommend that you make use of a maintained encryption library and [write your own filters](../writing-filters.md) if you need to encrypt or decrypt content using the `FilterInterface` contract.
 
 - `Laminas\Filter\File\Decrypt`
 - `Laminas\Filter\File\Encrypt`
@@ -64,7 +66,8 @@ These filters have become outdated and will be removed in version 3.0 of this li
 
 ### Static Filter Removal
 
-`Laminas\Filter\StaticFilter` will be removed without replacement in v3. Most filters are "new-able" so similar behaviour can be accomplished with:
+`Laminas\Filter\StaticFilter` will be removed without replacement in v3.
+Most filters are "new-able" so similar behaviour can be accomplished with:
 
 ```php
 $filtered = (new \Laminas\Filter\HtmlEntities())('Nuts & Bolts');

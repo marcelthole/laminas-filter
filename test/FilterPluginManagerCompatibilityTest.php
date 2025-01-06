@@ -17,8 +17,7 @@ use Throwable;
 use function assert;
 use function class_exists;
 use function in_array;
-use function is_string;
-use function strpos;
+use function str_contains;
 
 class FilterPluginManagerCompatibilityTest extends TestCase
 {
@@ -42,10 +41,11 @@ class FilterPluginManagerCompatibilityTest extends TestCase
         self::assertIsArray($config['aliases']);
 
         foreach ($config['aliases'] as $alias => $target) {
-            assert(is_string($alias) && is_string($target));
+            self::assertIsString($alias);
+            self::assertIsString($target);
 
             // Skipping as it has required options
-            if (strpos($target, 'DataUnitFormatter') !== false) {
+            if (str_contains($target, 'DataUnitFormatter')) {
                 continue;
             }
 
