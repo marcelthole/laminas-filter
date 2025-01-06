@@ -1485,6 +1485,11 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedMethod>
+      <code><![CDATA[_filterTag]]></code>
+      <code><![CDATA[setAttributesAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+    </DeprecatedMethod>
     <MixedArgument>
       <code><![CDATA[$options['allowAttribs']]]></code>
       <code><![CDATA[$options['allowTags']]]></code>
@@ -2295,6 +2300,33 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="test/StripTagsTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getAttributesAllowed]]></code>
+      <code><![CDATA[getAttributesAllowed]]></code>
+      <code><![CDATA[getAttributesAllowed]]></code>
+      <code><![CDATA[getTagsAllowed]]></code>
+      <code><![CDATA[getTagsAllowed]]></code>
+      <code><![CDATA[getTagsAllowed]]></code>
+      <code><![CDATA[setAttributesAllowed]]></code>
+      <code><![CDATA[setAttributesAllowed]]></code>
+      <code><![CDATA[setAttributesAllowed]]></code>
+      <code><![CDATA[setAttributesAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+      <code><![CDATA[setTagsAllowed]]></code>
+    </DeprecatedMethod>
     <MixedArgument>
       <code><![CDATA[$filtered]]></code>
     </MixedArgument>
