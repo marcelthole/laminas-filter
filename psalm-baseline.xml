@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="5.26.1@d747f6500b38ac4f7dfc5edbcae6e4b637d7add0">
   <file src="src/AbstractFilter.php">
-    <DocblockTypeContradiction>
-      <code><![CDATA[gettype($options)]]></code>
-    </DocblockTypeContradiction>
     <InvalidPropertyAssignmentValue>
       <code><![CDATA[[]]]></code>
     </InvalidPropertyAssignmentValue>
@@ -18,9 +15,6 @@
       <code><![CDATA[getOptions]]></code>
       <code><![CDATA[isOptions]]></code>
     </PossiblyUnusedMethod>
-    <RedundantConditionGivenDocblockType>
-      <code><![CDATA[is_object($options)]]></code>
-    </RedundantConditionGivenDocblockType>
   </file>
   <file src="src/Dir.php">
     <DeprecatedClass>
@@ -189,6 +183,20 @@
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
     </DeprecatedClass>
+    <DeprecatedMethod>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setEncoding]]></code>
+      <code><![CDATA[setEncoding]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+    </DeprecatedMethod>
     <DocblockTypeContradiction>
       <code><![CDATA[is_array($options)]]></code>
     </DocblockTypeContradiction>
@@ -362,6 +370,27 @@
     <DeprecatedMethod>
       <code><![CDATA[setInvokableClass]]></code>
       <code><![CDATA[setService]]></code>
+    </DeprecatedMethod>
+  </file>
+  <file src="test/HtmlEntitiesTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getCharSet]]></code>
+      <code><![CDATA[getCharSet]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getDoubleQuote]]></code>
+      <code><![CDATA[getEncoding]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[getQuoteStyle]]></code>
+      <code><![CDATA[setCharSet]]></code>
+      <code><![CDATA[setCharSet]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setDoubleQuote]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
+      <code><![CDATA[setQuoteStyle]]></code>
     </DeprecatedMethod>
   </file>
   <file src="test/InflectorTest.php">
