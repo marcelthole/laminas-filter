@@ -8,14 +8,13 @@ use Stringable;
 
 use function is_scalar;
 
+/** @implements FilterInterface<string> */
 final class ToString implements FilterInterface
 {
     /**
      * Returns (string) $value
      *
      * If the value provided is non-scalar, the value will remain unfiltered
-     *
-     * @return ($value is scalar ? string : mixed)
      */
     public function filter(mixed $value): mixed
     {
