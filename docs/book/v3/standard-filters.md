@@ -1185,7 +1185,7 @@ The above will return `This contains`, with the rest being stripped.
 example, this can be used to strip all markup except for links:
 
 ```php
-$filter = new Laminas\Filter\StripTags(['allowTags' => 'a']);
+$filter = new Laminas\Filter\StripTags(['allowTags' => ['a']]);
 
 $input  = "A text with <br/> a <a href='link.com'>link</a>";
 print $filter->filter($input);
@@ -1205,8 +1205,8 @@ You can also strip all but an allowed set of attributes from a tag:
 
 ```php
 $filter = new Laminas\Filter\StripTags([
-    'allowTags' => 'img',
-    'allowAttribs' => 'src',
+    'allowTags' => ['img'],
+    'allowAttribs' => ['src'],
 ]);
 
 $input  = "A text with <br/> a <img src='picture.com' width='100'>picture</img>";
@@ -1224,16 +1224,17 @@ will be an allowed tag, pointing to a list of allowed attributes for that
 tag.
 
 ```php
-$allowedElements = [
-    'img' => [
-        'src',
-        'width'
-    ],
-    'a' => [
-        'href'
+$filter = new Laminas\Filter\StripTags([
+    'allowTags' => [
+        'img' => [
+            'src',
+            'width'
+        ],
+        'a' => [
+            'href'
+        ]
     ]
-];
-$filter = new Laminas\Filter\StripTags($allowedElements);
+]);
 
 $input = "A text with <br/> a <img src='picture.com' width='100'>picture</img> click "
     . "<a href='http://picture.com/laminas' id='hereId'>here</a>!";

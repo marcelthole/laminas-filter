@@ -258,6 +258,17 @@ The following methods have been removed:
 
 The constructor now only accepts an associative array of [documented options](../standard-filters.md#stringtrim).
 
+#### `StripTags`
+
+The following methods have been removed:
+
+- `getTagsAllowed`
+- `setTagsAllowed`
+- `getAttributesAllowed`
+- `setAttributesAllowed`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#striptags).
+
 #### `ToNull`
 
 The following methods have been removed:
