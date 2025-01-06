@@ -343,3 +343,8 @@ Various filters such as `StringToLower` and `StringToUpper` inherited from the a
 This class has been removed and the affected filters no longer inherit from anything.
 In order to provide consistent handling of the `encoding` option that has been re-implemented in these filters, a new class `EncodingOption` has been introduced which provides static methods to validate a given encoding option.
 This change is unlikely to affect you, unless you have inherited from this class. In which case, you will need to implement the provision of an encoding option for your custom filter and remove `AbstractUnicode` from your inheritance tree.
+
+### Removal of the `FilterProviderInterface`
+
+This legacy interface is related to Laminas MVC Module Manager integration and was superseded by `Laminas\ModuleManager\Feature\FilterProviderInterface`.
+If your code still references `Laminas\Filter\FilterProviderInterface`, replace its usage with the interface [shipped by Module Manager](https://docs.laminas.dev/laminas-modulemanager/module-manager/#servicelistener).

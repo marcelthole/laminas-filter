@@ -185,11 +185,6 @@
       <code><![CDATA[(bool) $flag]]></code>
     </RedundantCastGivenDocblockType>
   </file>
-  <file src="src/FilterProviderInterface.php">
-    <UnusedClass>
-      <code><![CDATA[FilterProviderInterface]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/HtmlEntities.php">
     <DeprecatedClass>
       <code><![CDATA[AbstractFilter]]></code>
@@ -309,12 +304,6 @@
     </UnusedParam>
   </file>
   <file src="src/Module.php">
-    <PossiblyUnusedParam>
-      <code><![CDATA[$moduleManager]]></code>
-    </PossiblyUnusedParam>
-    <UndefinedDocblockClass>
-      <code><![CDATA[ModuleManager]]></code>
-    </UndefinedDocblockClass>
     <UnusedClass>
       <code><![CDATA[Module]]></code>
     </UnusedClass>
