@@ -51,7 +51,7 @@ final class FilterPluginManager extends AbstractPluginManager
             ForceUriScheme::class              => InvokableFactory::class,
             HtmlEntities::class                => InvokableFactory::class,
             ImmutableFilterChain::class        => ImmutableFilterChainFactory::class,
-            Inflector::class                   => InvokableFactory::class,
+            Inflector::class                   => InflectorFactory::class,
             ToFloat::class                     => InvokableFactory::class,
             MonthSelect::class                 => InvokableFactory::class,
             UpperCaseWords::class              => InvokableFactory::class,

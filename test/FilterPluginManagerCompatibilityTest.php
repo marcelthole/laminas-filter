@@ -6,9 +6,12 @@ namespace LaminasTest\Filter;
 
 use Generator;
 use Laminas\Filter\Callback;
+use Laminas\Filter\DataUnitFormatter;
 use Laminas\Filter\FilterPluginManager;
+use Laminas\Filter\Inflector;
 use Laminas\Filter\PregReplace;
 use Laminas\ServiceManager\Exception\InvalidServiceException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use stdClass;
@@ -17,12 +20,13 @@ use Throwable;
 use function assert;
 use function class_exists;
 use function in_array;
-use function str_contains;
 
 class FilterPluginManagerCompatibilityTest extends TestCase
 {
     private const FILTERS_WITH_REQUIRED_OPTIONS = [
         Callback::class,
+        DataUnitFormatter::class,
+        Inflector::class,
         PregReplace::class,
     ];
 
@@ -44,11 +48,6 @@ class FilterPluginManagerCompatibilityTest extends TestCase
             self::assertIsString($alias);
             self::assertIsString($target);
 
-            // Skipping as it has required options
-            if (str_contains($target, 'DataUnitFormatter')) {
-                continue;
-            }
-
             if (in_array($target, self::FILTERS_WITH_REQUIRED_OPTIONS, true)) {
                 continue;
             }
@@ -61,8 +60,8 @@ class FilterPluginManagerCompatibilityTest extends TestCase
 
     /**
      * @param class-string $expected
-     * @dataProvider aliasProvider
      */
+    #[DataProvider('aliasProvider')]
     public function testPluginAliasesResolve(string $alias, string $expected): void
     {
         self::assertInstanceOf(
