@@ -66,8 +66,7 @@ Filters can be specified using:
 By default, all [standard filters](standard-filters.md) are available by referencing any FQCN, or known alias of the filter type.
 If you have configured your application with [custom filters](writing-filters.md), these will also be available in any rules you define.
 
-TIP: **Tip**
-Try to prefer fully qualified class names *(FQCNs)* rather than aliases or 'short names'.
+TIP: Try to prefer fully qualified class names *(FQCNs)* rather than aliases or 'short names'.
 It will be easier for your IDE or text editor to identify specific filter usage when you use FQCNs.
 
 ### Setting the Inflector Target
