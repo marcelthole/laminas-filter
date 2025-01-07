@@ -7,7 +7,7 @@ namespace Laminas\Filter;
 use function function_exists;
 use function htmlentities;
 use function iconv;
-use function is_scalar;
+use function is_string;
 use function strlen;
 
 use const ENT_QUOTES;
@@ -61,19 +61,18 @@ final class HtmlEntities implements FilterInterface
      */
     public function filter(mixed $value): mixed
     {
-        if (! is_scalar($value)) {
+        if (! is_string($value) || $value === '') {
             return $value;
         }
-        $value = (string) $value;
 
         $filtered = htmlentities($value, $this->quoteStyle, $this->encoding, $this->doubleQuote);
-        if (strlen($value) && ! strlen($filtered)) {
+        if (strlen($filtered) === 0) {
             if (! function_exists('iconv')) {
                 throw new Exception\DomainException('Encoding mismatch has resulted in htmlentities errors');
             }
             $value    = iconv('', $this->encoding . '//IGNORE', $value);
             $filtered = htmlentities($value, $this->quoteStyle, $this->encoding, $this->doubleQuote);
-            if (! strlen($filtered)) {
+            if (strlen($filtered) === 0) {
                 throw new Exception\DomainException('Encoding mismatch has resulted in htmlentities errors');
             }
         }

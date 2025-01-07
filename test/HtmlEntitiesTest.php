@@ -20,37 +20,27 @@ use const ENT_QUOTES;
 
 class HtmlEntitiesTest extends TestCase
 {
-    /**
-     * Ensures that the filter follows expected behavior
-     */
-    public function testBasic(): void
+    #[DataProvider('defaultSettingsDataProvider')]
+    public function testBasic(string $input, string $expected): void
     {
-        $valuesExpected = [
-            'string' => 'string',
-            '<'      => '&lt;',
-            '>'      => '&gt;',
-            '\''     => '&#039;',
-            '"'      => '&quot;',
-            '&'      => '&amp;',
-        ];
-        $filter         = new HtmlEntitiesFilter();
-        foreach ($valuesExpected as $input => $output) {
-            self::assertSame($output, $filter($input));
-        }
+        $filter = new HtmlEntitiesFilter();
+
+        self::assertSame($expected, $filter($input));
+        self::assertSame($expected, $filter->__invoke($input));
+        self::assertSame($expected, $filter->filter($input));
     }
 
-    /**
-     * Ensure that fluent interfaces are supported
-     */
-    #[Group('Laminas-3172')]
-    public function testFluentInterface(): void
+    public static function defaultSettingsDataProvider(): array
     {
-        $instance = new HtmlEntitiesFilter([
-            'encoding'    => 'UTF-8',
-            'quotestyle'  => ENT_QUOTES,
-            'doublequote' => false,
-        ]);
-        self::assertInstanceOf(HtmlEntitiesFilter::class, $instance);
+        return [
+            ['string', 'string'],
+            ['<', '&lt;'],
+            ['>', '&gt;'],
+            ['\'', '&#039;'],
+            ['"', '&quot;'],
+            ['&', '&amp;'],
+            ['&amp;', '&amp;amp;'],
+        ];
     }
 
     /**
@@ -61,6 +51,9 @@ class HtmlEntitiesTest extends TestCase
     {
         $input  = "A 'single' and " . '"double"';
         $result = 'A &#039;single&#039; and &quot;double&quot;';
+
+        $filterWithDefault = new HtmlEntitiesFilter();
+        self::assertSame($result, $filterWithDefault->filter($input));
 
         $filter = new HtmlEntitiesFilter(['quotestyle' => ENT_QUOTES]);
         self::assertSame($result, $filter->filter($input));
@@ -89,6 +82,27 @@ class HtmlEntitiesTest extends TestCase
         $result = "A 'single' and " . '"double"';
 
         $filter = new HtmlEntitiesFilter(['quotestyle' => ENT_NOQUOTES]);
+        self::assertSame($result, $filter->filter($input));
+    }
+
+    public function testDoubleQuoteEncodeDefault(): void
+    {
+        $input  = '&amp;';
+        $result = '&amp;amp;';
+
+        $filterDefault = new HtmlEntitiesFilter();
+        self::assertSame($result, $filterDefault->filter($input));
+
+        $filter = new HtmlEntitiesFilter(['doublequote' => true]);
+        self::assertSame($result, $filter->filter($input));
+    }
+
+    public function testDoubleQuoteEncodeOff(): void
+    {
+        $input  = '&amp;';
+        $result = '&amp;';
+
+        $filter = new HtmlEntitiesFilter(['doublequote' => false]);
         self::assertSame($result, $filter->filter($input));
     }
 
@@ -127,6 +141,10 @@ class HtmlEntitiesTest extends TestCase
         return [
             [null],
             [new stdClass()],
+            [''],
+            [false],
+            [true],
+            [12345],
             [
                 [
                     '<',
