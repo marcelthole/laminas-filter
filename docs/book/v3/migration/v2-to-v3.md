@@ -152,6 +152,36 @@ The following methods have been removed:
 
 The constructor now only accepts an associative array of [documented options](../standard-filters.md#denylist).
 
+#### `Inflector`
+
+The following methods have been removed:
+
+- `getPluginManager`
+- `setPluginManager`
+- `setOptions`
+- `setThrowTargetExceptionsOn`
+- `isThrowTargetExceptionsOn`
+- `setTargetReplacementIdentifier`
+- `getTargetReplacementIdentifier`
+- `setTarget`
+- `getTarget`
+- `setTargetReference`
+- `setRules`
+- `addRules`
+- `getRules`
+- `getRule`
+- `clearRules`
+- `setFilterRule`
+- `addFilterRule`
+- `setStaticRule`
+- `setStaticRuleReference`
+
+The constructor now only accepts an associative array of [documented options](../inflector.md) and requires a `FilterPluginManager` instance as its first argument.
+
+The ability to pass in references to be used as the inflection target, or as a static rule is no longer possible.
+
+It is now possible to use an object as the filter input.
+
 #### `MonthSelect`
 
 The following methods have been removed:
