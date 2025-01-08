@@ -635,23 +635,16 @@ entity equivalents when possible.
 The following options are supported for `Laminas\Filter\HtmlEntities`:
 
 - `quotestyle`: Equivalent to the PHP `htmlentities()` native function parameter
-  `quote_style`.  This allows you to define what will be done with 'single' and
+  `flags`.  This allows you to define what will be done with 'single' and
   "double" quotes. The following constants are accepted: `ENT_COMPAT`,
   `ENT_QUOTES`, and `ENT_NOQUOTES`, with the default being `ENT_COMPAT`.
-- `charset`: Equivalent to the PHP `htmlentities()` native function parameter
-  `charset`. This defines the character set to be used in filtering. Unlike the
+- `encoding`: Equivalent to the PHP `htmlentities()` native function parameter
+  `encoding`. This defines the character set to be used in filtering. Unlike the
   PHP native function, the default is 'UTF-8'. See the [PHP htmlentities
   manual](http://php.net/htmlentities) for a list of supported character sets.
-
-  This option can also be set via the `$options` parameter as a Traversable
-  object or array. The option key will be accepted as either `charset` or
-  `encoding`.
 - `doublequote`: Equivalent to the PHP `htmlentities()` native function
   parameter `double_encode`. If set to `false`, existing HTML entities will not
   be encoded. The default is to convert everything (`true`).
-
-  This option must be set via the `$options` parameter or the
-  `setDoubleEncode()` method.
 
 ### Basic Usage
 
@@ -695,43 +688,6 @@ print $filter->filter($input);
 
 The above example returns `A 'single' and "double"`. Notice that neither
 "double" or 'single' quotes are altered.
-
-### Helper Methods
-
-To change or retrieve the `quotestyle` after instantiation, the two methods
-`setQuoteStyle()` and `getQuoteStyle()` may be used respectively.
-`setQuoteStyle()` accepts one parameter, `$quoteStyle`, which accepts one of the
-constants `ENT_COMPAT`, `ENT_QUOTES`, or `ENT_NOQUOTES`.
-
-```php
-$filter = new Laminas\Filter\HtmlEntities();
-
-$filter->setQuoteStyle(ENT_QUOTES);
-print $filter->getQuoteStyle(ENT_QUOTES);
-```
-
-To change or retrieve the `charset` after instantiation, the two methods
-`setCharSet()` and `getCharSet()` may be used respectively. `setCharSet()`
-accepts one parameter, `$charSet`. See the [PHP htmlentities manual
-page](http://php.net/htmlentities) for a list of supported character sets.
-
-```php
-$filter = new Laminas\Filter\HtmlEntities();
-
-$filter->setQuoteStyle(ENT_QUOTES);
-print $filter->getQuoteStyle(ENT_QUOTES);
-```
-
-To change or retrieve the `doublequote` option after instantiation, the two methods
-`setDoubleQuote()` and `getDoubleQuote()` may be used respectively. `setDoubleQuote()` accepts one
-boolean parameter, `$doubleQuote`.
-
-```php
-$filter = new Laminas\Filter\HtmlEntities();
-
-$filter->setQuoteStyle(ENT_QUOTES);
-print $filter->getQuoteStyle(ENT_QUOTES);
-```
 
 ## ToFloat
 

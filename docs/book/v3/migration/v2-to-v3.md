@@ -152,6 +152,21 @@ The following methods have been removed:
 
 The constructor now only accepts an associative array of [documented options](../standard-filters.md#denylist).
 
+#### `HtmlEntities`
+
+The following methods have been removed:
+
+- `getQuoteStyle`
+- `setQuoteStyle`
+- `getEncoding`
+- `setEncoding`
+- `getCharSet`
+- `setCharSet`
+- `getDoubleQuote`
+- `setDoubleQuote`
+
+The constructor now only accepts an associative array of [documented options](../standard-filters.md#htmlentities).
+
 #### `Inflector`
 
 The following methods have been removed:

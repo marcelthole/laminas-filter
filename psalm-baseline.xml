@@ -179,45 +179,6 @@
       <code><![CDATA[(bool) $flag]]></code>
     </RedundantCastGivenDocblockType>
   </file>
-  <file src="src/HtmlEntities.php">
-    <DeprecatedClass>
-      <code><![CDATA[AbstractFilter]]></code>
-    </DeprecatedClass>
-    <DeprecatedMethod>
-      <code><![CDATA[getDoubleQuote]]></code>
-      <code><![CDATA[getDoubleQuote]]></code>
-      <code><![CDATA[getEncoding]]></code>
-      <code><![CDATA[getEncoding]]></code>
-      <code><![CDATA[getEncoding]]></code>
-      <code><![CDATA[getEncoding]]></code>
-      <code><![CDATA[getQuoteStyle]]></code>
-      <code><![CDATA[getQuoteStyle]]></code>
-      <code><![CDATA[setDoubleQuote]]></code>
-      <code><![CDATA[setEncoding]]></code>
-      <code><![CDATA[setEncoding]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
-    </DeprecatedMethod>
-    <DocblockTypeContradiction>
-      <code><![CDATA[is_array($options)]]></code>
-    </DocblockTypeContradiction>
-    <MixedArgument>
-      <code><![CDATA[$options['doublequote']]]></code>
-      <code><![CDATA[$options['encoding']]]></code>
-      <code><![CDATA[$options['quotestyle']]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$options['encoding']]]></code>
-      <code><![CDATA[$temp['charset']]]></code>
-      <code><![CDATA[$temp['quotestyle']]]></code>
-    </MixedAssignment>
-    <PossiblyUndefinedVariable>
-      <code><![CDATA[$temp]]></code>
-    </PossiblyUndefinedVariable>
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(bool) $doubleQuote]]></code>
-      <code><![CDATA[(string) $value]]></code>
-    </RedundantCastGivenDocblockType>
-  </file>
   <file src="src/Module.php">
     <UnusedClass>
       <code><![CDATA[Module]]></code>
@@ -277,27 +238,6 @@
     <DeprecatedMethod>
       <code><![CDATA[setInvokableClass]]></code>
       <code><![CDATA[setService]]></code>
-    </DeprecatedMethod>
-  </file>
-  <file src="test/HtmlEntitiesTest.php">
-    <DeprecatedMethod>
-      <code><![CDATA[getCharSet]]></code>
-      <code><![CDATA[getCharSet]]></code>
-      <code><![CDATA[getDoubleQuote]]></code>
-      <code><![CDATA[getDoubleQuote]]></code>
-      <code><![CDATA[getEncoding]]></code>
-      <code><![CDATA[getQuoteStyle]]></code>
-      <code><![CDATA[getQuoteStyle]]></code>
-      <code><![CDATA[getQuoteStyle]]></code>
-      <code><![CDATA[setCharSet]]></code>
-      <code><![CDATA[setCharSet]]></code>
-      <code><![CDATA[setDoubleQuote]]></code>
-      <code><![CDATA[setDoubleQuote]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
-      <code><![CDATA[setQuoteStyle]]></code>
     </DeprecatedMethod>
   </file>
 </files>
