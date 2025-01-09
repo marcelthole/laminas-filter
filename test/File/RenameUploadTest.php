@@ -109,46 +109,17 @@ class RenameUploadTest extends TestCase
      */
     public function testThrowsExceptionWithNonUploadedFile(): void
     {
-        $filter = new FileRenameUpload($this->targetFile);
-        self::assertSame($this->targetFile, $filter->getTarget());
+        $filter = new FileRenameUpload(['target' => $this->targetFile]);
         self::assertSame('falsefile', $filter('falsefile'));
+
         $this->expectException(Exception\RuntimeException::class);
         $this->expectExceptionMessage('could not be renamed');
         self::assertSame($this->targetFile, $filter($this->sourceFile));
     }
 
-    public function testOptions(): void
-    {
-        $filter = new FileRenameUpload($this->targetFile);
-        self::assertSame($this->targetFile, $filter->getTarget());
-        self::assertFalse($filter->getUseUploadName());
-        self::assertFalse($filter->getOverwrite());
-        self::assertFalse($filter->getRandomize());
-
-        $filter = new FileRenameUpload([
-            'target'          => $this->sourceFile,
-            'use_upload_name' => true,
-            'overwrite'       => true,
-            'randomize'       => true,
-        ]);
-        self::assertSame($this->sourceFile, $filter->getTarget());
-        self::assertTrue($filter->getUseUploadName());
-        self::assertTrue($filter->getOverwrite());
-        self::assertTrue($filter->getRandomize());
-    }
-
-    public function testStringConstructorParam(): void
-    {
-        $filter = new RenameUploadMock($this->targetFile);
-        self::assertSame($this->targetFile, $filter->getTarget());
-        self::assertSame($this->targetFile, $filter($this->sourceFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
     public function testStringConstructorWithFilesArray(): void
     {
-        $filter = new RenameUploadMock($this->targetFile);
-        self::assertSame($this->targetFile, $filter->getTarget());
+        $filter = new RenameUploadMock(['target' => $this->targetFile]);
         self::assertSame(
             [
                 'tmp_name' => $this->targetFile,
@@ -162,9 +133,6 @@ class RenameUploadTest extends TestCase
         self::assertSame('falsefile', $filter('falsefile'));
     }
 
-    /**
-     * @requires PHP 7
-     */
     public function testStringConstructorWithPsrFile(): void
     {
         $originalStream = $this->createMock(StreamInterface::class);
@@ -216,11 +184,11 @@ class RenameUploadTest extends TestCase
             )
             ->willReturn($renamedFile);
 
-        $filter = new RenameUploadMock($this->targetFile);
-        self::assertSame($this->targetFile, $filter->getTarget());
-
-        $filter->setStreamFactory($streamFactory);
-        $filter->setUploadFileFactory($fileFactory);
+        $filter = new RenameUploadMock([
+            'target'              => $this->targetFile,
+            'stream_factory'      => $streamFactory,
+            'upload_file_factory' => $fileFactory,
+        ]);
 
         $moved = $filter($originalFile);
 
@@ -231,29 +199,90 @@ class RenameUploadTest extends TestCase
         self::assertSame($moved, $secondResult);
     }
 
+    public function testWithPsrFileWillFailWithMissingUri(): void
+    {
+        $originalFile = $this->createMock(UploadedFileInterface::class);
+        $originalFile->method('getStream')->willReturn(
+            $this->createMock(StreamInterface::class)
+        );
+        $filter = new RenameUploadMock();
+        self::expectException(Exception\RuntimeException::class);
+        self::expectExceptionMessage('UploadedFile doesn\'t contains the uri metadata');
+        $filter($originalFile);
+    }
+
+    public function testWithPsrFileWillFailWithMissingStreamFactory(): void
+    {
+        $originalStream = $this->createMock(StreamInterface::class);
+        $originalStream->expects(self::once())
+            ->method('getMetadata')
+            ->with('uri')
+            ->willReturn($this->sourceFile);
+
+        $originalFile = $this->createMock(UploadedFileInterface::class);
+        $originalFile->expects(self::once())
+            ->method('getStream')
+            ->willReturn($originalStream);
+
+        $originalFile->expects(self::atLeast(1))
+            ->method('getClientFilename')
+            ->willReturn($this->targetFile);
+
+        $filter = new RenameUploadMock([
+            'target' => $this->targetFile,
+        ]);
+        self::expectException(Exception\RuntimeException::class);
+        self::expectExceptionMessage('pass the stream_factory option');
+        $filter($originalFile);
+    }
+
+    public function testWithPsrFileWillFailWithMissingUploadedFileFactory(): void
+    {
+        $originalStream = $this->createMock(StreamInterface::class);
+        $originalStream->expects(self::once())
+            ->method('getMetadata')
+            ->with('uri')
+            ->willReturn($this->sourceFile);
+
+        $originalFile = $this->createMock(UploadedFileInterface::class);
+        $originalFile->expects(self::once())
+            ->method('getStream')
+            ->willReturn($originalStream);
+
+        $originalFile->expects(self::atLeast(1))
+            ->method('getClientFilename')
+            ->willReturn($this->targetFile);
+
+        $streamFactory = $this->createMock(StreamFactoryInterface::class);
+        $streamFactory->expects(self::once())
+            ->method('createStreamFromFile')
+            ->with($this->targetFile)
+            ->willReturn($this->createMock(StreamInterface::class));
+
+        $filter = new RenameUploadMock([
+            'target'         => $this->targetFile,
+            'stream_factory' => $streamFactory,
+        ]);
+        self::expectException(Exception\RuntimeException::class);
+        self::expectExceptionMessage('pass the upload_file_factory option');
+        $filter($originalFile);
+    }
+
     public function testArrayConstructorParam(): void
     {
         $filter = new RenameUploadMock([
             'target' => $this->targetFile,
         ]);
-        self::assertSame($this->targetFile, $filter->getTarget());
         self::assertSame($this->targetFile, $filter($this->sourceFile));
+        self::assertSame($this->targetFile, $filter->filter($this->sourceFile));
+        self::assertSame($this->targetFile, $filter->__invoke($this->sourceFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
 
     public function testConstructTruncatedTarget(): void
     {
-        $filter = new FileRenameUpload('*');
-        self::assertSame('*', $filter->getTarget());
+        $filter = new RenameUploadMock(['target' => '*']);
         self::assertSame($this->sourceFile, $filter($this->sourceFile));
-        self::assertSame('falsefile', $filter('falsefile'));
-    }
-
-    public function testTargetDirectory(): void
-    {
-        $filter = new RenameUploadMock($this->targetPath);
-        self::assertSame($this->targetPath, $filter->getTarget());
-        self::assertSame($this->targetPathFile, $filter($this->sourceFile));
         self::assertSame('falsefile', $filter('falsefile'));
     }
 
@@ -266,7 +295,6 @@ class RenameUploadTest extends TestCase
 
         copy($this->sourceFile, $this->targetFile);
 
-        self::assertSame($this->targetFile, $filter->getTarget());
         self::assertSame($this->targetFile, $filter($this->sourceFile));
     }
 
@@ -279,8 +307,6 @@ class RenameUploadTest extends TestCase
 
         copy($this->sourceFile, $this->targetFile);
 
-        self::assertSame($this->targetFile, $filter->getTarget());
-        self::assertFalse($filter->getOverwrite());
         $this->expectException(Exception\InvalidArgumentException::class);
         $this->expectExceptionMessage('already exists');
         self::assertSame($this->targetFile, $filter($this->sourceFile));
@@ -350,13 +376,6 @@ class RenameUploadTest extends TestCase
         );
     }
 
-    public function testInvalidConstruction(): void
-    {
-        $this->expectException(Exception\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Invalid target');
-        new FileRenameUpload(1234);
-    }
-
     public function testCanFilterMultipleTimesWithSameResult(): void
     {
         $filter = new RenameUploadMock([
@@ -379,6 +398,7 @@ class RenameUploadTest extends TestCase
         return [
             [null],
             [new stdClass()],
+            [false],
             [
                 [
                     '/some-file',
@@ -404,7 +424,7 @@ class RenameUploadTest extends TestCase
      */
     public function testFilterDoesNotAlterUnknownFileDataAndCachesResultsOfFilteringSAPIUploads(): void
     {
-        $filter = new RenameUploadMock($this->targetPath);
+        $filter = new RenameUploadMock(['target' => $this->targetPath]);
 
         // Emulate the output of \Laminas\Http\Request::getFiles()->toArray()
         $sapiSource = [

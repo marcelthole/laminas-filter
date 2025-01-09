@@ -247,6 +247,27 @@ So, to check if the path exists, ensure a validator (such as `Laminas\Validator\
 Windows support has been dropped.
 Which in some cases may now need a custom filter to handle Windows specific issues.
 
+#### `RenameUpload`
+
+The following methods have been removed:
+
+- `setStreamFactory`
+- `getStreamFactory`
+- `setTarget`
+- `getTarget`
+- `setUploadFileFactory`
+- `getUploadFileFactory`
+- `setUseUploadName`
+- `getUseUploadName`
+- `setUseUploadExtension`
+- `getUseUploadExtension`
+- `setOverwrite`
+- `getOverwrite`
+- `setRandomize`
+- `getRandomize`
+
+The constructor now only accepts an associative array of [documented options](../file.md#renameupload).
+
 #### `SeparatorToCamelCase`
 
 The constructor now only accepts an associative array of [documented options](../word.md#separatortocamelcase).
